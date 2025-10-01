@@ -26,11 +26,9 @@ const cool_instructions = {
     show_clickable_nav: true,
     allow_backward: true, // for instance, this will show the "previous" button (tho there is no prev page)
     show_page_number: true,
-    on_load: function() {
-        document.getElementById("jspsych-content").style.margin = "50px auto" // tbh idk why this is here
-    },
     data: {
-        type_of_trial: "cool_instructions" // dict identifier for this trial in the data
+        trial_id: "cool_instructions", // add any metadata you want to collect here
+        data_of_interest_name: "wow! i'm some data!"
     }
 }
 
