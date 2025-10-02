@@ -11,7 +11,7 @@ const jsPsych = initJsPsych({
 // need to import anything because these files will be combine into one big file (index.html)
 // when you run the experiment
 
-const cool_instructions = {
+const coolInstructions = {
     type: jsPsychInstructions, // this is the type of trial (plug-in), which determines what jsPsych does
     pages: function() { // Instructions, like here, just shows HTML!
         let pages = []
@@ -32,12 +32,22 @@ const cool_instructions = {
     }
 }
 
+// POLITICAL CHARACTERIZATIONS TRIAL
+
+const politicalCharacterizationTrial = {
+    type: jsPsychHtmlButtonResponse,
+    prompt: '<br>Is the follow statement <b>True</b> or <b>False</b>?',
+    choices: ['True', 'False'],
+    timeline: politicalCharacterizationsStimuli, // <-- defined in stimuli.js
+}
+
 // Create the experiment variable -- you need this to run the experiment!
 var experiment = [];
 
 // add your trials to the experiment variable in the order you want them to appear
 experiment.push(
-    cool_instructions
+    coolInstructions,
+    politicalCharacterizationTrial
 )
 
 // start the experiment
