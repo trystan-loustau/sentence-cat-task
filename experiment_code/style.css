@@ -140,7 +140,7 @@
   grid-template-columns: 220px 100px 1fr; /* first word | connector | rest */
   align-items: baseline;
   width: 600px;          /* keep same as your base sentence width */
-  margin: 0 auto;        /* keeps the whole block centered on the page */
+  margin: 0;        /* keeps the whole block centered on the page */
   text-align: left;
 }
 
