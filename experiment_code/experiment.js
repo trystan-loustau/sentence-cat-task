@@ -64,25 +64,35 @@ if (startupIssues.length > 0) {
   // Instructions
   // ---------------------------
   const coolInstructions = {
-    type: jsPsychInstructions,
-    pages: function () { return [introduction_page]; },
-    allow_keys: false,
-    show_clickable_nav: true,
-    allow_backward: true,
-    show_page_number: true,
-    data: { trial_id: "cool_instructions" },
-    on_finish: function () {
-      if (!document.getElementById('fixed-ui')) {
-        const ui = document.createElement('div');
-        ui.id = 'fixed-ui';
-        ui.innerHTML = `
-          <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-        `;
-        document.body.appendChild(ui);
+  type: jsPsychInstructions,
+  pages: function () { return [introduction_page]; },
+  show_clickable_nav: false,   // hide Next/Previous buttons
+  allow_backward: false,
+  data: { trial_id: "cool_instructions" },
+  on_start: function() {
+    // add visual hint for participants
+    document.addEventListener('keydown', advanceOnEnter);
+  },
+  on_finish: function() {
+    document.removeEventListener('keydown', advanceOnEnter);
+    if (!document.getElementById('fixed-ui')) {
+      const ui = document.createElement('div');
+      ui.id = 'fixed-ui';
+      ui.innerHTML = `
+        <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+      `;
+      document.body.appendChild(ui);
+    }
+  }
+};
+
+// helper function for advancing with Enter key
+function advanceOnEnter(e) {
+  if (e.key === 'Enter') {
+    jsPsych.finishTrial();  // proceed to next part of the experiment
   }
 }
 
-  };
 
   // ---------------------------
   // ITI (blank sentence, header persists)
