@@ -158,7 +158,7 @@ if (startupIssues.length > 0) {
   // Build & run
   // ---------------------------
   const experiment = [];
-  experiment.push(coolInstructions, itiTrial, politicalCharacterizationProcedure);
+  experiment.push(coolInstructions, politicalCharacterizationProcedure);
   jsPsych.run(experiment);
 
 } // <— closes the big else
