@@ -138,7 +138,7 @@ function advanceOnEnter(e) {
         return `
           <div class="sentence-fixed">
             <span class="fixed-first"><b>${parts[0]}</b></span>
-            <span class="connector">&nbsp;&nbsp;${connector}&nbsp;&nbsp;</span>
+            <span class="connector">${connector}</span>
             <span class="variable-part"><b>${parts[1]}</b></span>
           </div>
         `;
