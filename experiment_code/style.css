@@ -96,8 +96,13 @@
   text-align: left;
   width: 600px; /* width of total sentence area */
   margin: 0 auto;
-  transform: translateX(-10px);
 }
+
+.stimulus-centered .sentence-fixed {
+  position: relative;
+  left: -10px; /* negative moves left */
+}
+
 
 .fixed-first {
   display: inline-block;
