@@ -65,20 +65,32 @@ if (startupIssues.length > 0) {
   // Instructions
   // ---------------------------
   const coolInstructions = {
-    type: jsPsychInstructions,
-    pages: function () {
-      // introduction_page should be a string of HTML (from stimuli.js)
-      return [introduction_page];
-    },
-    allow_keys: false,
-    show_clickable_nav: true,
-    allow_backward: true,
-    show_page_number: true,
-    data: {
-      trial_id: "cool_instructions",
-      data_of_interest_name: "wow! i'm some data!"
-    }
-  };
+  type: jsPsychInstructions,
+  pages: function () { return [introduction_page]; },
+  allow_keys: false,
+  show_clickable_nav: true,
+  allow_backward: true,
+  show_page_number: true,
+  data: { trial_id: "cool_instructions" },
+  on_finish: function () {
+    const ui = document.createElement('div');
+    ui.id = 'fixed-ui';
+    ui.innerHTML = `
+      <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+      <div class="key-reminder">
+        <div class="key-col left">
+          <div class="key-label">False</div>
+          <div class="key-key">F</div>
+        </div>
+        <div class="key-col right">
+          <div class="key-label">True</div>
+          <div class="key-key">J</div>
+        </div>
+      </div>`;
+    document.body.appendChild(ui);
+  }
+};
+
 
 const showFixedUI = {
   type: jsPsychCallFunction,
@@ -103,28 +115,40 @@ const showFixedUI = {
 };
 
   
-  const itiTrial = {
+const itiTrial = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: () => `
     <div class="exp-wrap">
-      <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-      <div class="stimulus-centered" aria-hidden="true">&nbsp;</div>  <!-- blank sentence slot -->
-      <div class="key-reminder">
-        <div class="key-col left">
-          <div class="key-label">False</div>
-          <div class="key-key">F</div>
-        </div>
-        <div class="key-col right">
-          <div class="key-label">True</div>
-          <div class="key-key">J</div>
-        </div>
-      </div>
+      <div class="stimulus-centered" aria-hidden="true">&nbsp;</div>
     </div>
   `,
   choices: "NO_KEYS",
-  trial_duration: 500, 
+  trial_duration: 500,
   data: { trial_id: "iti" }
 };
+
+const politicalCharacterizationProcedure = {
+  timeline: [
+    itiTrial,
+    {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: function () {
+        const sentence = jsPsych.timelineVariable('sentence');
+        return `
+          <div class="exp-wrap">
+            <div class="stimulus-centered">${formatSentence(sentence)}</div>
+          </div>`;
+      },
+      choices: ['f','j'],
+      response_ends_trial: true,
+      data: { trial_id:'political_characterization', stimulus: jsPsych.timelineVariable('sentence') },
+      on_finish: function (d){ d.response_meaning = d.response==='j'?'True':(d.response==='f'?'False':null); }
+    }
+  ],
+  timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
+  randomize_order: false
+};
+
 
 
 function formatSentence(sentence) {
@@ -151,46 +175,12 @@ function formatSentence(sentence) {
 
 
 // POLITICAL CHARACTERIZATIONS TRIAL (keyboard response, prompt fixed at top)
-const politicalCharacterizationProcedure = {
-  timeline: [
-    itiTrial,  // <-- add this before each real stimulus
-    {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: function () {
-        const sentence = jsPsych.timelineVariable('sentence');
-        return `
-          <div class="exp-wrap">
-            <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-            <div class="stimulus-centered">${formatSentence(sentence)}</div>
-            <div class="key-reminder">
-              <div class="key-col left">
-                <div class="key-label">False</div>
-                <div class="key-key">F</div>
-              </div>
-              <div class="key-col right">
-                <div class="key-label">True</div>
-                <div class="key-key">J</div>
-              </div>
-            </div>
-          </div>
-        `;
-      },
-      choices: ['f', 'j'],
-      response_ends_trial: true,
-      data: { stimulus: jsPsych.timelineVariable('sentence') },
-      on_finish: function (data) {
-        data.response_meaning = data.response === 'j' ? 'True' : 'False';
-      }
-    }
-  ],
-  timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
-  randomize_order: false
-};
+
 
   // ---------------------------
   // Build & run
   // ---------------------------
   const experiment = [];
-  experiment.push(coolInstructions, showFixedUI, itiTrial, politicalCharacterizationProcedure);
-  jsPsych.run(experiment);
-}
+experiment.push(coolInstructions, itiTrial, politicalCharacterizationProcedure);
+jsPsych.run(experiment);
+
