@@ -28,8 +28,9 @@
 .exp-wrap {
   width: 900px;
   max-width: 92vw;
+  min-height: 60vh;
   margin: 0 auto;
-  padding-top: 20px; /* small breathing room above content */
+  padding-top: 30px; /* small breathing room above content */
 }
 
 /* prompt "pinned" near top but still in flow */
@@ -44,6 +45,7 @@
   border-radius: 8px;
   border: none;
   box-shadow: none;
+  margin-bottom: 8px;
 }
 
 /* normal, modest spacing for the sentence */
