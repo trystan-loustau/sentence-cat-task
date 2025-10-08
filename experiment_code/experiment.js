@@ -122,7 +122,7 @@ const showFixedUI = {
     </div>
   `,
   choices: "NO_KEYS",
-  trial_duration: 150, 
+  trial_duration: 500, 
   data: { trial_id: "iti" }
 };
 
