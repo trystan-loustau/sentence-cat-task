@@ -1,26 +1,39 @@
-body {
+/* --- jsPsych Layout Adjustments --- */
+
+/* push content toward top while keeping it centered horizontally */
+.jspsych-display-element {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* pushes content toward the top */
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
-  padding-top: 60px; /* space from very top */
+  padding-top: 60px;
   font-family: Arial, sans-serif;
 }
 
+/* ensure jsPsych content centers properly */
+#jspsych-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* top prompt */
 .prompt-top {
   font-size: 22px;
   margin-bottom: 40px;
   text-align: center;
 }
 
+/* main sentence */
 .stimulus-centered {
   font-size: 28px;
   margin-bottom: 60px;
   text-align: center;
 }
 
+/* F/J key labels at the bottom */
 .key-reminder {
   display: flex;
   justify-content: space-between;
