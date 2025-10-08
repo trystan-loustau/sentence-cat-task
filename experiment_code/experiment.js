@@ -155,6 +155,96 @@ function advanceOnEnter(e) {
     }
     return `<div class="sentence-fixed"><b>${sentence}</b></div>`;
   }
+// ---------------------------
+// Practice stimuli (non-political)
+// ---------------------------
+// truth: true  → correct key is 'j' (True)
+// truth: false → correct key is 'f' (False)
+const practiceStimuli = [
+  { sentence: "Birds are animals", truth: true },
+  { sentence: "Bananas are blue", truth: false },
+  { sentence: "Cats are reptiles", truth: false },
+  { sentence: "Triangles have three sides", truth: true },
+  { sentence: "Cars have wings", truth: false },
+  { sentence: "Books have pages", truth: true },
+  { sentence: "Fish are mammals", truth: false },
+  { sentence: "Trees have leaves", truth: true }
+];
+
+// Practice trial with feedback
+const practiceProcedure = {
+  timeline: [
+    // ITI before each practice item (blank sentence; keys shown below by your trial HTML)
+    itiTrial,
+
+    // Practice response trial
+    {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: function () {
+        const s = jsPsych.timelineVariable('sentence');
+        return `
+          <div class="exp-wrap">
+            <div class="stimulus-centered">${formatSentence(s)}</div>
+            <div class="key-reminder">
+              <div class="key-col left">
+                <div class="key-label">False</div>
+                <div class="key-key">Press 'F'</div>
+              </div>
+              <div class="key-col right">
+                <div class="key-label">True</div>
+                <div class="key-key">Press 'J'</div>
+              </div>
+            </div>
+          </div>`;
+      },
+      choices: ['f','j'],
+      response_ends_trial: true,
+      data: {
+        trial_id: 'practice',
+        sentence: jsPsych.timelineVariable('sentence'),
+        truth: jsPsych.timelineVariable('truth')
+      },
+      on_finish: function (d) {
+        const correctKey = d.truth ? 'j' : 'f';
+        d.correct = (d.response === correctKey);
+      }
+    },
+
+    // Feedback screen (brief)
+    {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: function () {
+        const last = jsPsych.data.get().last(1).values()[0];
+        const msg = last.correct ? 'Correct!' : 'Incorrect';
+        return `
+          <div class="exp-wrap">
+            <div class="stimulus-centered" style="font-weight:700;">${msg}</div>
+          </div>`;
+      },
+      choices: "NO_KEYS",
+      trial_duration: 700,   // feedback duration (ms)
+      data: { trial_id: 'practice_feedback' }
+    }
+  ],
+  timeline_variables: practiceStimuli,
+  randomize_order: false
+};
+
+// Optional: short “practice complete” screen before main block
+const practiceComplete = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: `
+    <div class="exp-wrap">
+      <div class="stimulus-centered">
+        Practice complete.<br/><br/>
+        Press any key to begin the main task.
+      </div>
+    </div>
+  `,
+  choices: "ALL_KEYS",
+  response_ends_trial: true,
+  data: { trial_id: 'practice_complete' }
+};
 
   // ---------------------------
   // Political Characterizations
@@ -196,10 +286,16 @@ function advanceOnEnter(e) {
 
 
   // ---------------------------
-  // Build & run
   // ---------------------------
-  const experiment = [];
-  experiment.push(coolInstructions, politicalCharacterizationProcedure);
-  jsPsych.run(experiment);
+// Build & run
+// ---------------------------
+const experiment = [];
+experiment.push(
+  coolInstructions,
+  practiceProcedure,   // ⬅️ NEW: practice block
+  practiceComplete,    // ⬅️ NEW: brief bridge screen
+  politicalCharacterizationProcedure
+);
+jsPsych.run(experiment);
 
 } // <— closes the big else
