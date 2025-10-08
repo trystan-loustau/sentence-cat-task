@@ -80,12 +80,6 @@ if (startupIssues.length > 0) {
     }
   };
 
-  // ---------------------------
-  // Political Characterizations
-  // ---------------------------
-  // --- Add a 1-second intertrial interval --- //
-// --- 1-second intertrial interval that keeps prompt & key hints visible --- //
-// Add fixed prompt + key hints after instructions finish
 const showFixedUI = {
   type: jsPsychCallFunction,
   func: function () {
@@ -128,7 +122,7 @@ const showFixedUI = {
     </div>
   `,
   choices: "NO_KEYS",
-  trial_duration: 1000, // adjust to taste (e.g., 500 for 0.5s)
+  trial_duration: 150, 
   data: { trial_id: "iti" }
 };
 
