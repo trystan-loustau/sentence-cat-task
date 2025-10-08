@@ -228,19 +228,21 @@ function lastPracticeAccuracy() {
   const sum = trials.reduce((s, t) => s + (Number(t.correct) === 1 ? 1 : 0), 0);
   return sum / trials.length;
 }
+function setPromptVisible(visible) {
+  const el = document.getElementById('fixed-ui');
+  if (el) el.style.display = visible ? '' : 'none';
+}
 
 // One screen that adapts message based on accuracy
 const practiceGateScreen = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: function () {
-    const n = practiceStimuli.length;
-    const lastBlock = jsPsych.data.get().filter({ trial_id: 'practice' }).last(n);
-    const acc = lastBlock.select('correct').mean() || 0;
-    const perfect = acc === 1;
+    const acc = lastPracticeAccuracy();            // your helper from earlier
+    const perfect = acc >= 0.999;
 
     const msg = perfect
       ? `Great job — you answered all practice items correctly.<br/><br/>
-         Press any key to begin the <b>main practice</b>.`
+         Press any key to begin the <b>main task</b>.`
       : `You got ${(acc*100).toFixed(0)}% correct.<br/>
          Please reach <b>100%</b> to continue.<br/><br/>
          Press any key to try the practice again.`;
@@ -252,8 +254,13 @@ const practiceGateScreen = {
     `;
   },
   choices: "ALL_KEYS",
-  data: { trial_id: 'practice_gate' }
+  data: { trial_id: 'practice_gate' },
+
+  // 👇 Hide prompt while this screen is visible
+  on_load: function () { setPromptVisible(false); },
+  on_finish: function () { setPromptVisible(true); }
 };
+
 
   
 // Repeat practice until perfect; the gate screen shows either "try again" or "begin main practice"
