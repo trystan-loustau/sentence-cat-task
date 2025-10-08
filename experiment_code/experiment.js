@@ -168,25 +168,25 @@ const practiceProcedure = {
   timeline: [
     itiTrial,
     {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: function () {
-        const s = jsPsych.timelineVariable('sentence');
-        return `
-          <div class="exp-wrap">
-            <div class="stimulus-centered">${formatSentence(s)}</div>
-            <div class="key-reminder">
-              <div class="key-col left">
-                <div class="key-label">False</div>
-                <div class="key-key">Press 'F'</div>
-              </div>
-              <div class="key-col right">
-                <div class="key-label">True</div>
-                <div class="key-key">Press 'J'</div>
-              </div>
-            </div>
-          </div>`;
-      },
-      choices: ['f','j'],
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: function () {
+    const s = jsPsych.timelineVariable('sentence');
+    return `
+      <div class="exp-wrap">
+        <div class="stimulus-centered practice-shift">${formatSentence(s)}</div>
+        <div class="key-reminder">
+          <div class="key-col left">
+            <div class="key-label">False</div>
+            <div class="key-key">Press 'F'</div>
+          </div>
+          <div class="key-col right">
+            <div class="key-label">True</div>
+            <div class="key-key">Press 'J'</div>
+          </div>
+        </div>
+      </div>`;
+  },
+  choices: ['f','j'],
       response_ends_trial: true,
       data: {
         trial_id: 'practice',
