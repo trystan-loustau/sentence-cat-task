@@ -1,16 +1,15 @@
-
-/* Overall jsPsych page layout */
+/* ---------- jsPsych layout (top-aligned) ---------- */
 .jspsych-display-element {
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
   margin: 0;
-  padding-top: 30px;
+  padding-top: 10px;
   font-family: Arial, sans-serif;
 }
 
-/* Force jsPsych content to top (override jsPsych defaults) */
+/* Ensure jsPsych content isn't vertically centered by default */
 #jspsych-content {
   display: flex;
   flex-direction: column;
@@ -21,65 +20,67 @@
   height: 100%;
 }
 
-/* remove this; it doesn't affect a fixed/sticky header meaningfully */
-/* body { margin-top: 50px; } */
-
-/* container stays */
+/* Fixed-width content wrapper so positions don't shift with sentence length */
 .exp-wrap {
   width: 900px;
   max-width: 92vw;
-  min-height: 60vh;
   margin: 0 auto;
-  padding-top: 30px; /* small breathing room above content */
 }
 
-/* prompt "pinned" near top but still in flow */
+/* ---------- Fixed prompt header ---------- */
 .prompt-top {
-  position: sticky;
-  top: 20px;          /* gap from top of viewport */
+  position: fixed;
+  top: 40px;                 /* adjust this to add/remove space from top */
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 22px;
   text-align: center;
   z-index: 1000;
-  background: white;
+  background: white;         /* keep white so it doesn't flicker over content */
   padding: 10px 20px;
   border-radius: 8px;
   border: none;
-  box-shadow: none;
-  margin-bottom: 8px;
+  box-shadow: none;          /* was a subtle shadow before; removed per your preference */
 }
 
-/* normal, modest spacing for the sentence */
+/* ---------- Main sentence ---------- */
 .stimulus-centered {
   font-size: 28px;
-  margin-top: 40px;   /* small gap under prompt box */
+  margin-top: 120px;         /* clears the fixed prompt box; increase if needed */
   margin-bottom: 60px;
   text-align: center;
   line-height: 1.3;
 }
 
-/* Left/Right key hints locked to wrapper edges */
+/* ---------- Left/Right key hints (stable positions) ---------- */
 .key-reminder {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* pins to left/right edges of wrapper */
   align-items: flex-start;
   width: 100%;
   margin-top: 24px;
 }
 
-.key-col { width: 140px; text-align: center; }
+.key-col {
+  width: 140px;
+  text-align: center;
+}
 
-.key-label { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
-.key-key   { font-size: 18px; opacity: 0.85; }
+.key-label {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 6px;        /* label above the key */
+}
 
-/* Optional hooks */
-.key-col.left  .key-label { /* False */ }
-.key-col.right .key-label { /* True  */ }
+.key-key {
+  font-size: 18px;
+  opacity: 0.85;
+}
 
-/* highlight feedback after key press */
+/* ---------- Feedback highlight after key press ---------- */
 .key-col.highlight {
   background: rgba(0,0,0,0.06);
   border-radius: 10px;
   box-shadow: 0 0 0 2px rgba(0,0,0,0.15) inset;
   transition: background 0.15s ease;
 }
-
