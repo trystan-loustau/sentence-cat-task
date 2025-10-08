@@ -92,6 +92,20 @@ const itiTrial = {
   data: { trial_id: "iti" }
 };
 
+  // --- Helper function to bold all words except "are" and add space around it --- //
+function formatSentence(sentence) {
+  // Split the sentence around " are " with padding
+  const parts = sentence.split(/\s+are\s+/i);
+  
+  if (parts.length === 2) {
+    // Add spacing and bold formatting
+    return `<b>${parts[0]}</b> &nbsp;&nbsp;are&nbsp;&nbsp; <b>${parts[1]}</b>`;
+  } else {
+    // fallback: just bold the full sentence
+    return `<b>${sentence}</b>`;
+  }
+}
+
 // POLITICAL CHARACTERIZATIONS TRIAL (keyboard response, prompt fixed at top)
 const politicalCharacterizationProcedure = {
   timeline: [
@@ -103,7 +117,7 @@ const politicalCharacterizationProcedure = {
         return `
           <div class="exp-wrap">
             <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-            <div class="stimulus-centered">${sentence}</div>
+            <div class="stimulus-centered">${formatSentence(sentence)}</div>
             <div class="key-reminder">
               <div class="key-col left">
                 <div class="key-label">False</div>
