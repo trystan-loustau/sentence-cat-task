@@ -132,5 +132,5 @@
 /* Shift ONLY practice sentences to the left (tweak -40px to taste) */
 .practice-shift .sentence-fixed {
   position: relative;
-  left: -80px !important;   /* negative = left, positive = right */
+  left: -60px !important;   /* negative = left, positive = right */
 }
