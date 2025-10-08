@@ -193,10 +193,13 @@ const practiceProcedure = {
         sentence: jsPsych.timelineVariable('sentence'),
         truth: jsPsych.timelineVariable('truth')
       },
-      on_finish: function (d) {
-        const correctKey = d.truth ? 'j' : 'f';
-        d.correct = (d.response === correctKey);
-      }
+     // inside the practice response trial
+on_finish: function (d) {
+  const r = (d.response ?? '').toString().toLowerCase();   // normalize
+  const correctKey = d.truth ? 'j' : 'f';
+  d.correct = (r === correctKey) ? 1 : 0;                   // store as 0/1 number
+}
+
     },
     {
       type: jsPsychHtmlKeyboardResponse,
@@ -217,6 +220,14 @@ const practiceProcedure = {
   randomize_order: true   // ⬅️ randomize practice
 };
 // Shown only when practice isn't perfect
+// Helper to compute accuracy for the most recent practice block
+function lastPracticeAccuracy() {
+  const n = practiceStimuli.length;
+  const trials = jsPsych.data.get().filter({ trial_id: 'practice' }).last(n).values();
+  if (!trials.length) return 0;
+  const sum = trials.reduce((s, t) => s + (Number(t.correct) === 1 ? 1 : 0), 0);
+  return sum / trials.length;
+}
 
 // One screen that adapts message based on accuracy
 const practiceGateScreen = {
@@ -248,11 +259,12 @@ const practiceGateScreen = {
 // Repeat practice until perfect; the gate screen shows either "try again" or "begin main practice"
 const practiceLoop = {
   timeline: [practiceProcedure, practiceGateScreen],
-  loop_function: function(data) {
-    const acc = data.filter({ trial_id: 'practice' }).select('correct').mean() || 0;
-    return acc < 1; // true => repeat practice
+  loop_function: function() {
+    const acc = lastPracticeAccuracy();
+    return acc < 0.999; // true => repeat
   }
 };
+
 
 
 
