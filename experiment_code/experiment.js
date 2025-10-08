@@ -241,22 +241,20 @@ const practiceGateScreen = {
     const perfect = acc >= 0.999;
     const msg = perfect
       ? `Great job — you answered all practice items correctly.<br/><br/>
-         Press any key to begin the <b>main task</b>.`
+         <b>Press Enter to begin the main task.</b>`
       : `You got ${(acc*100).toFixed(0)}% correct.<br/>
          Please reach <b>100%</b> to continue.<br/><br/>
-         Press any key to try the practice again.`;
+         <b>Press Enter to practice again.</b>`;
     return `
       <div class="exp-wrap">
         <div class="stimulus-centered">${msg}</div>
       </div>
     `;
   },
-  choices: "ALL_KEYS",
+  choices: ['Enter'],                   // Enter-only for both cases
   data: { trial_id: 'practice_gate' },
-
-  // Hide prompt while this screen is shown
-  on_start: function () { document.body.classList.add('hide-prompt'); },
-  on_finish: function () { document.body.classList.remove('hide-prompt'); }
+  on_start: function(){ document.body.classList.add('hide-prompt'); },
+  on_finish: function(){ document.body.classList.remove('hide-prompt'); }
 };
 
 
