@@ -1,5 +1,30 @@
 // --- experiment.js --- //
 
+// QUICK RUNTIME GUARDS (so we don't fail silently)
+function assert(condition, message) {
+  if (!condition) {
+    // Render a visible error into the page as well as throwing, so you don’t just see a blank screen.
+    const el = document.createElement('pre');
+    el.style.whiteSpace = 'pre-wrap';
+    el.style.padding = '16px';
+    el.style.border = '1px solid #ccc';
+    el.style.maxWidth = '900px';
+    el.style.margin = '24px auto';
+    el.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+    el.textContent = `jsPsych startup error:\n${message}`;
+    document.body.appendChild(el);
+    throw new Error(message);
+  }
+}
+
+// Verify jsPsych core
+assert(typeof initJsPsych === 'function', 'initJsPsych not found. Is jspsych.js loaded before experiment.js?');
+
+// Verify plugins (global names depend on how you included them)
+// If you included the UMD bundles (script tags), these globals should exist:
+assert(typeof window.jsPsychInstructions !== 'undefined', 'jsPsychInstructions not found. Did you include @jspsych/plugin-instructions?');
+assert(typeof window.jsPsychHtmlKeyboardResponse !== 'undefined', 'jsPsychHtmlKeyboardResponse not found. Did you include @jspsych/plugin-html-keyboard-response?');
+
 // initialize jsPsych
 const jsPsych = initJsPsych({
   on_finish: function () {
@@ -7,62 +32,98 @@ const jsPsych = initJsPsych({
   }
 });
 
-// Instructions trial
-const coolInstructions = {
-  type: jsPsychInstructions,
-  pages: function () {
-    let pages = [];
-    pages.push(introduction_page); // defined in stimuli.js
-    return pages;
-  },
-  allow_keys: false,
-  show_clickable_nav: true,
-  allow_backward: true,
-  show_page_number: true,
-  data: {
-    trial_id: "cool_instructions",
-    data_of_interest_name: "wow! i'm some data!"
-  }
-};
+// Gather any startup issues about your external stimuli
+const startupIssues = [];
+if (typeof window.introduction_page === 'undefined') {
+  startupIssues.push('introduction_page is undefined (expected from stimuli.js).');
+}
+if (typeof window.politicalCharacterizations === 'undefined') {
+  startupIssues.push('politicalCharacterizations is undefined (expected from stimuli.js).');
+} else if (!Array.isArray(window.politicalCharacterizations)) {
+  startupIssues.push('politicalCharacterizations is not an array.');
+} else if (window.politicalCharacterizations.length === 0) {
+  startupIssues.push('politicalCharacterizations is an empty array.');
+}
 
-// POLITICAL CHARACTERIZATIONS TRIAL (keyboard response, prompt fixed at top)
-const politicalCharacterizationProcedure = {
-  timeline: [{
+// If there are issues, run a visible diagnostic timeline and stop
+if (startupIssues.length > 0) {
+  const diag = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: function () {
-      const sentence = jsPsych.timelineVariable('sentence');
-      return `
-        <div class="exp-wrap">
-          <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-          <div class="stimulus-centered">${sentence}</div>
-          <div class="key-reminder">
-            <div class="key-col left">
-              <div class="key-label">False</div>
-              <div class="key-key">F</div>
-            </div>
-            <div class="key-col right">
-              <div class="key-label">True</div>
-              <div class="key-key">J</div>
+    stimulus:
+      `<div class="exp-wrap">
+         <h2>Experiment configuration problem</h2>
+         <p>The following issue(s) were detected. Fix them in <code>stimuli.js</code> (or your script order) and reload.</p>
+         <ul>${startupIssues.map(s => `<li>${s}</li>`).join('')}</ul>
+         <p><b>Tip:</b> Open the browser console for the exact error and stack trace.</p>
+         <p>Press any key to view collected (empty) data and confirm jsPsych is working.</p>
+       </div>`
+  };
+  jsPsych.run([diag]);
+  // Don’t proceed to the real timeline
+} else {
+  // ---------------------------
+  // Instructions
+  // ---------------------------
+  const coolInstructions = {
+    type: jsPsychInstructions,
+    pages: function () {
+      // introduction_page should be a string of HTML (from stimuli.js)
+      return [introduction_page];
+    },
+    allow_keys: false,
+    show_clickable_nav: true,
+    allow_backward: true,
+    show_page_number: true,
+    data: {
+      trial_id: "cool_instructions",
+      data_of_interest_name: "wow! i'm some data!"
+    }
+  };
+
+  // ---------------------------
+  // Political Characterizations
+  // ---------------------------
+  const politicalCharacterizationProcedure = {
+    timeline: [{
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: function () {
+        const sentence = jsPsych.timelineVariable('sentence');
+        return `
+          <div class="exp-wrap">
+            <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+            <div class="stimulus-centered">${sentence}</div>
+            <div class="key-reminder">
+              <div class="key-col left">
+                <div class="key-label">False</div>
+                <div class="key-key">F</div>
+              </div>
+              <div class="key-col right">
+                <div class="key-label">True</div>
+                <div class="key-key">J</div>
+              </div>
             </div>
           </div>
-        </div>
-      `;
-    },
-    choices: ['f', 'j'],
-    response_ends_trial: true,
-    data: { stimulus: jsPsych.timelineVariable('sentence') },
-    on_finish: function (data) {
-      data.response_meaning = data.response === 'j' ? 'True' : 'False';
-    }
-  }],
-  timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
-  randomize_order: false
-};
+        `;
+      },
+      choices: ['f', 'j'],
+      response_ends_trial: true,
+      data: {
+        trial_id: 'political_characterization',
+        stimulus: jsPsych.timelineVariable('sentence')
+      },
+      on_finish: function (data) {
+        // jsPsych v7 records the pressed key as a string ('f','j')
+        data.response_meaning = data.response === 'j' ? 'True' : (data.response === 'f' ? 'False' : null);
+      }
+    }],
+    timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
+    randomize_order: false
+  };
 
-// Build and run experiment
-var experiment = [];
-experiment.push(
-  coolInstructions,
-  politicalCharacterizationProcedure
-);
-jsPsych.run(experiment);
+  // ---------------------------
+  // Build & run
+  // ---------------------------
+  const experiment = [];
+  experiment.push(coolInstructions, politicalCharacterizationProcedure);
+  jsPsych.run(experiment);
+}
