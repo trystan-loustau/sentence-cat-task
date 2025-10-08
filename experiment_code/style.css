@@ -104,3 +104,45 @@
   text-align: left;
   flex: 1;
 }
+
+/* Fixed container that holds BOTH the prompt and the key hints */
+#fixed-ui {
+  position: fixed;
+  top: 16px;                 /* move up/down as you like */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  max-width: 92vw;
+  z-index: 2000;
+  pointer-events: none;      /* don't block clicks/keys */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;                 /* space between prompt and keys */
+}
+
+/* Inside the fixed container, keep these STATIC (override the old fixed rules) */
+#fixed-ui .prompt-top {
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  background: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: none;
+  z-index: auto;
+}
+
+#fixed-ui .key-reminder {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Make sure your jsPsych content clears the fixed header+keys */
+.stimulus-centered {
+  margin-top: 160px;   /* increase if the keys overlap; try 180–200px if needed */
+}
+
