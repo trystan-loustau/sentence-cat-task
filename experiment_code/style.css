@@ -1,23 +1,33 @@
-/* ---------- Main sentence ---------- */
-.stimulus-centered {
-  font-size: 28px;
-  margin-top: 180px;     /* clears the fixed prompt + keys */
-  margin-bottom: 60px;
-  text-align: center;
-  line-height: 1.3;
-  min-height: 2.2em;
+/* ---------- jsPsych layout (top-aligned) ---------- */
+.jspsych-display-element {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding-top: 10px;
+  font-family: Arial, sans-serif;
 }
 
-/* Remove (or comment out) the global fixed header rule to avoid conflicts */
-/* .prompt-top {
-  position: fixed;  <-- REMOVE THIS WHOLE BLOCK
-  top: 40px;
-  left: 50%;
-  transform: translateX(-50%);
-  ... 
-} */
+/* Ensure jsPsych content isn't vertically centered by default */
+#jspsych-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start !important;
+  align-items: center;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  height: 100%;
+}
 
-/* Fixed container that holds BOTH the prompt and the key hints */
+/* Fixed-width content wrapper so positions don't shift with sentence length */
+.exp-wrap {
+  width: 900px;
+  max-width: 92vw;
+  margin: 0 auto;
+}
+
+/* ---------- Fixed prompt header (only the prompt) ---------- */
 #fixed-ui {
   position: fixed;
   top: 16px;
@@ -26,42 +36,82 @@
   width: 900px;
   max-width: 92vw;
   z-index: 2000;
-  pointer-events: none;      /* don't block clicks/keys */
+  pointer-events: none; /* doesn't block keys/clicks */
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;                 /* space between prompt and keys */
+  justify-content: center;
 }
 
-/* Style inside the fixed container only */
 #fixed-ui .prompt-top {
-  position: static;          /* not fixed */
+  position: static;
   transform: none;
   font-size: 22px;
   text-align: center;
   background: white;
   padding: 10px 20px;
   border-radius: 8px;
+  border: none;
   box-shadow: none;
 }
 
-#fixed-ui .key-reminder {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+/* ---------- Main sentence ---------- */
+.stimulus-centered {
+  font-size: 28px;
+  margin-top: 120px; /* clears the fixed prompt */
+  margin-bottom: 60px;
+  text-align: center;
+  line-height: 1.3;
+  min-height: 2.2em;
 }
 
-/* Sentence alignment helpers (unchanged) */
+/* ---------- Left/Right key hints (per-trial) ---------- */
+.key-reminder {
+  display: flex;
+  justify-content: space-between; /* pins to left/right edges of wrapper */
+  align-items: flex-start;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.key-col {
+  width: 140px;
+  text-align: center;
+}
+
+.key-label {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 6px; /* label above the key */
+}
+
+.key-key {
+  font-size: 18px;
+  opacity: 0.85;
+}
+
+/* ---------- Sentence formatting ---------- */
 .sentence-fixed {
   display: flex;
   justify-content: center;
   align-items: baseline;
   text-align: left;
-  width: 600px;
+  width: 600px; /* width of total sentence area */
   margin: 0 auto;
 }
 
-.fixed-first { width: 180px; text-align: right; }
-.connector   { width: 80px;  text-align: center; }
-.variable-part { flex: 1; text-align: left; }
+.fixed-first {
+  display: inline-block;
+  width: 180px; /* set width for first word column */
+  text-align: right; /* right-align first word to edge of "are/have" */
+}
+
+.connector {
+  display: inline-block;
+  text-align: center;
+  width: 80px; /* spacing between first and second parts */
+}
+
+.variable-part {
+  display: inline-block;
+  text-align: left;
+  flex: 1;
+}
