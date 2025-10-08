@@ -66,27 +66,25 @@ if (startupIssues.length > 0) {
 const coolInstructions = {
   type: jsPsychInstructions,
   pages: function () { return [introduction_page]; },
-  show_clickable_nav: false,    // hide next/previous buttons
+  show_clickable_nav: false,
   allow_backward: false,
   data: { trial_id: "cool_instructions" },
-  on_load: function() {
-    // show a subtle hint at the bottom if you want
-    const hint = document.createElement('div');
-    hint.textContent = "Press Enter to continue";
-    hint.style.marginTop = "40px";
-    hint.style.fontSize = "18px";
-    hint.style.textAlign = "center";
-    hint.style.opacity = "0.6";
-    document.querySelector('.jspsych-content').appendChild(hint);
+  on_load: function () {
+    // append the hint inside your intro wrapper if available, else to the root
+    const target =
+      document.querySelector('#jspsych-content .exp-wrap') ||
+      document.querySelector('#jspsych-content') ||
+      jsPsych.getDisplayElement();
 
-    // add Enter key listener
+    const hint = document.createElement('div');
+    hint.className = 'enter-hint';
+    hint.textContent = 'Press Enter to continue';
+    target.appendChild(hint);
+
     document.addEventListener('keydown', advanceOnEnter);
   },
-  on_finish: function() {
-    // remove listener when done (so it doesn’t interfere later)
+  on_finish: function () {
     document.removeEventListener('keydown', advanceOnEnter);
-
-    // show your persistent UI (prompt + keys)
     if (!document.getElementById('fixed-ui')) {
       const ui = document.createElement('div');
       ui.id = 'fixed-ui';
@@ -98,14 +96,9 @@ const coolInstructions = {
   }
 };
 
-// --- helper: only advances on Enter ---
 function advanceOnEnter(e) {
-  if (e.key === 'Enter') {
-    jsPsych.finishTrial();  // move to the next part of the experiment
-  }
+  if (e.key === 'Enter') jsPsych.finishTrial();
 }
-
-
 
   // ---------------------------
   // ITI (blank sentence, header persists)
