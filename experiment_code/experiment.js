@@ -93,18 +93,24 @@ const itiTrial = {
 };
 
   // --- Helper function to bold all words except "are" and add space around it --- //
+// --- Helper function to bold all words except the connector ("are" or "have") and add space around it --- //
 function formatSentence(sentence) {
-  // Split the sentence around " are " with padding
-  const parts = sentence.split(/\s+are\s+/i);
-  
-  if (parts.length === 2) {
-    // Add spacing and bold formatting
-    return `<b>${parts[0]}</b> &nbsp;&nbsp;are&nbsp;&nbsp; <b>${parts[1]}</b>`;
-  } else {
-    // fallback: just bold the full sentence
-    return `<b>${sentence}</b>`;
+  // Match either " are " or " have ", case-insensitive
+  const match = sentence.match(/\s+(are|have)\s+/i);
+
+  if (match) {
+    const connector = match[1]; // "are" or "have"
+    const parts = sentence.split(new RegExp(`\\s+${connector}\\s+`, 'i'));
+
+    if (parts.length === 2) {
+      return `<b>${parts[0]}</b> &nbsp;&nbsp;${connector}&nbsp;&nbsp; <b>${parts[1]}</b>`;
+    }
   }
+
+  // fallback if no "are"/"have" found
+  return `<b>${sentence}</b>`;
 }
+
 
 // POLITICAL CHARACTERIZATIONS TRIAL (keyboard response, prompt fixed at top)
 const politicalCharacterizationProcedure = {
