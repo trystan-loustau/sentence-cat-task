@@ -92,10 +92,7 @@ const itiTrial = {
   data: { trial_id: "iti" }
 };
 
-  // --- Helper function to bold all words except "are" and add space around it --- //
-// --- Helper function to bold all words except the connector ("are" or "have") and add space around it --- //
 function formatSentence(sentence) {
-  // Match either " are " or " have ", case-insensitive
   const match = sentence.match(/\s+(are|have)\s+/i);
 
   if (match) {
@@ -103,12 +100,18 @@ function formatSentence(sentence) {
     const parts = sentence.split(new RegExp(`\\s+${connector}\\s+`, 'i'));
 
     if (parts.length === 2) {
-      return `<b>${parts[0]}</b> &nbsp;&nbsp;${connector}&nbsp;&nbsp; <b>${parts[1]}</b>`;
+      return `
+        <div class="sentence-fixed">
+          <span class="fixed-first"><b>${parts[0]}</b></span>
+          <span class="connector">&nbsp;&nbsp;${connector}&nbsp;&nbsp;</span>
+          <span class="variable-part"><b>${parts[1]}</b></span>
+        </div>
+      `;
     }
   }
 
-  // fallback if no "are"/"have" found
-  return `<b>${sentence}</b>`;
+  // fallback if no connector found
+  return `<div class="sentence-fixed"><b>${sentence}</b></div>`;
 }
 
 
