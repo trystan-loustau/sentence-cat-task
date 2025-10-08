@@ -142,7 +142,7 @@
   width: 600px;      /* same base width */
   margin: 0;         /* align to the left edge of the wrapper (not centered) */
   position: relative;
-  left: -40px;       /* negative = move further left; tweak to taste */
+  left: 10px;       /* negative = move further left; tweak to taste */
   text-align: left;
 }
 
