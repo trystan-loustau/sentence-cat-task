@@ -145,3 +145,7 @@
   text-align: left;
 }
 
+/* Hide the persistent prompt when we add .hide-prompt to <body> */
+.hide-prompt #fixed-ui {
+  display: none !important;
+}
