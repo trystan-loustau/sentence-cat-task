@@ -37,12 +37,10 @@ const coolInstructions = {
 const politicalCharacterizationTrial = {
   type: jsPsychHtmlButtonResponse,
   choices: ['True', 'False'],
-  timeline: politicalCharacterizationsStimuli.map(s => ({
+  timeline: politicalCharacterizations.map(sentence => ({
     stimulus: `
-      <div style="font-size:22px; margin-bottom:15px;">
-        Is the following statement <b>True</b> or <b>False</b>?
-      </div>
-      <div style="font-size:28px;">${s.stimulus}</div>
+      <div class="prompt">Is the following statement <b>True</b> or <b>False</b>?</div>
+      <div class="stimulus">${sentence}</div>
     `
   })),
 };
