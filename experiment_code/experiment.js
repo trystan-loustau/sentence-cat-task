@@ -122,7 +122,7 @@ function advanceOnEnter(e) {
     </div>
   `,
   choices: "NO_KEYS",
-  trial_duration: 500,
+  trial_duration: 800,
   data: { trial_id: "iti" }
 };
 
