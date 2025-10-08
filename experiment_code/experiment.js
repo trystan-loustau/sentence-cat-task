@@ -72,39 +72,43 @@ if (startupIssues.length > 0) {
     show_page_number: true,
     data: { trial_id: "cool_instructions" },
     on_finish: function () {
-      // Inject persistent header/keys AFTER instructions
-      const ui = document.createElement('div');
-      ui.id = 'fixed-ui';
-      ui.innerHTML = `
-        <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-        <div class="key-reminder">
-          <div class="key-col left">
-            <div class="key-label">False</div>
-            <div class="key-key">F</div>
-          </div>
-          <div class="key-col right">
-            <div class="key-label">True</div>
-            <div class="key-key">J</div>
-          </div>
-        </div>`;
-      document.body.appendChild(ui);
-    }
+      if (!document.getElementById('fixed-ui')) {
+        const ui = document.createElement('div');
+        ui.id = 'fixed-ui';
+        ui.innerHTML = `
+          <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+        `;
+        document.body.appendChild(ui);
+  }
+}
+
   };
 
   // ---------------------------
   // ITI (blank sentence, header persists)
   // ---------------------------
   const itiTrial = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: () => `
-      <div class="exp-wrap">
-        <div class="stimulus-centered" aria-hidden="true">&nbsp;</div>
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: () => `
+    <div class="exp-wrap">
+      <div class="stimulus-centered" aria-hidden="true">&nbsp;</div>
+      <div class="key-reminder">
+        <div class="key-col left">
+          <div class="key-label">False</div>
+          <div class="key-key">F</div>
+        </div>
+        <div class="key-col right">
+          <div class="key-label">True</div>
+          <div class="key-key">J</div>
+        </div>
       </div>
-    `,
-    choices: "NO_KEYS",
-    trial_duration: 500, // adjust lag here (ms)
-    data: { trial_id: "iti" }
-  };
+    </div>
+  `,
+  choices: "NO_KEYS",
+  trial_duration: 500,
+  data: { trial_id: "iti" }
+};
+
 
   // ---------------------------
   // Sentence formatter
@@ -131,28 +135,39 @@ if (startupIssues.length > 0) {
   // Political Characterizations
   // ---------------------------
   const politicalCharacterizationProcedure = {
-    timeline: [
-      itiTrial,
-      {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: function () {
-          const sentence = jsPsych.timelineVariable('sentence');
-          return `
-            <div class="exp-wrap">
-              <div class="stimulus-centered">${formatSentence(sentence)}</div>
-            </div>`;
-        },
-        choices: ['f','j'],
-        response_ends_trial: true,
-        data: { trial_id:'political_characterization', stimulus: jsPsych.timelineVariable('sentence') },
-        on_finish: function (d){
-          d.response_meaning = d.response==='j'?'True':(d.response==='f'?'False':null);
-        }
+  timeline: [
+    itiTrial,
+    {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: function () {
+        const sentence = jsPsych.timelineVariable('sentence');
+        return `
+          <div class="exp-wrap">
+            <div class="stimulus-centered">${formatSentence(sentence)}</div>
+            <div class="key-reminder">
+              <div class="key-col left">
+                <div class="key-label">False</div>
+                <div class="key-key">F</div>
+              </div>
+              <div class="key-col right">
+                <div class="key-label">True</div>
+                <div class="key-key">J</div>
+              </div>
+            </div>
+          </div>`;
+      },
+      choices: ['f','j'],
+      response_ends_trial: true,
+      data: { trial_id:'political_characterization', stimulus: jsPsych.timelineVariable('sentence') },
+      on_finish: function (d){
+        d.response_meaning = d.response==='j'?'True':(d.response==='f'?'False':null);
       }
-    ],
-    timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
-    randomize_order: false
-  };
+    }
+  ],
+  timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
+  randomize_order: false
+};
+
 
   // ---------------------------
   // Build & run
