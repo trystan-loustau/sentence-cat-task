@@ -158,17 +158,15 @@ const practiceStimuli = [
   { sentence: "Triangles have three sides", truth: true },
   { sentence: "Cars have wings", truth: false },
   { sentence: "Books have pages", truth: true },
-  { sentence: "Fish are mammals", truth: false },
+  { sentence: "Apples are vegetables", truth: false },
   { sentence: "Trees have leaves", truth: true }
 ];
 
 // Practice trial with feedback
+// Practice trial with feedback
 const practiceProcedure = {
   timeline: [
-    // ITI before each practice item (blank sentence; keys shown below by your trial HTML)
     itiTrial,
-
-    // Practice response trial
     {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function () {
@@ -200,8 +198,6 @@ const practiceProcedure = {
         d.correct = (d.response === correctKey);
       }
     },
-
-    // Feedback screen (brief)
     {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function () {
@@ -213,15 +209,28 @@ const practiceProcedure = {
           </div>`;
       },
       choices: "NO_KEYS",
-      trial_duration: 700,   // feedback duration (ms)
+      trial_duration: 700,
       data: { trial_id: 'practice_feedback' }
     }
   ],
   timeline_variables: practiceStimuli,
-  randomize_order: false
+  randomize_order: true   // ⬅️ randomize practice
 };
 
-// Optional: short “practice complete” screen before main block
+  // Repeat the entire practice block until accuracy is 100%
+const practiceLoop = {
+  timeline: [practiceProcedure],
+  loop_function: function(data) {
+    const acc = data.filter({ trial_id: 'practice' }).select('correct').mean() || 0;
+    const perfect = (acc === 1);
+    if (!perfect) {
+      alert(`Your practice accuracy was ${(acc*100).toFixed(0)}%. Please reach 100% to continue.`);
+    }
+    return !perfect; // true => repeat loop
+  }
+};
+
+
 const practiceComplete = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: `
@@ -283,8 +292,8 @@ const practiceComplete = {
 const experiment = [];
 experiment.push(
   coolInstructions,
-  practiceProcedure,   // ⬅️ NEW: practice block
-  practiceComplete,    // ⬅️ NEW: brief bridge screen
+  practiceLoop,        // ⬅️ repeats until 100% correct
+  practiceComplete,    // ⬅️ shown only after perfect practice
   politicalCharacterizationProcedure
 );
 jsPsych.run(experiment);
