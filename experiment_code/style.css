@@ -129,3 +129,8 @@
   opacity: 0.7;
 }
 
+/* Shift ONLY practice sentences to the left (tweak -40px to taste) */
+.practice-shift .sentence-fixed {
+  position: relative;
+  left: -40px;   /* negative = left, positive = right */
+}
