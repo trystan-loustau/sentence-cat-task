@@ -129,8 +129,32 @@
   opacity: 0.7;
 }
 
-/* Shift ONLY practice sentences to the left (tweak -40px to taste) */
 .practice-shift .sentence-fixed {
-  position: relative;
-  left: 150px !important;   /* negative = left, positive = right */
+  left: 0 !important;
+  transform: none !important;
 }
+
+/* Practice-only: lock columns so every sentence starts in the same place */
+.practice-shift .sentence-fixed {
+  display: grid;
+  grid-template-columns: 220px 100px 1fr; /* first word | connector | rest */
+  align-items: baseline;
+  width: 600px;          /* keep same as your base sentence width */
+  margin: 0 auto;        /* keeps the whole block centered on the page */
+  text-align: left;
+}
+
+.practice-shift .fixed-first {
+  text-align: left;      /* left edge of first word is fixed */
+  white-space: nowrap;   /* prevents wrapping of the first word */
+}
+
+.practice-shift .connector {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.practice-shift .variable-part {
+  text-align: left;
+}
+
