@@ -96,7 +96,7 @@
   text-align: left;
   width: 600px; /* width of total sentence area */
   margin: 0 auto;
-  transform: translateX(40px);
+  transform: translateX(20px);
 }
 
 .fixed-first {
