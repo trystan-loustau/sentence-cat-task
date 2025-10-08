@@ -73,3 +73,12 @@ body {
 /* Optional hooks */
 .key-col.left  .key-label { /* False */ }
 .key-col.right .key-label { /* True  */ }
+
+/* highlight feedback after key press */
+.key-col.highlight {
+  background: rgba(0,0,0,0.06);
+  border-radius: 10px;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.15) inset;
+  transition: background 0.15s ease;
+}
+
