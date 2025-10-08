@@ -83,8 +83,20 @@ if (startupIssues.length > 0) {
   // ---------------------------
   // Political Characterizations
   // ---------------------------
-  const politicalCharacterizationProcedure = {
-    timeline: [{
+  // --- Add a 1-second intertrial interval --- //
+const itiTrial = {
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: '',
+  choices: "NO_KEYS",
+  trial_duration: 1000, // 1 second
+  data: { trial_id: "iti" }
+};
+
+// POLITICAL CHARACTERIZATIONS TRIAL (keyboard response, prompt fixed at top)
+const politicalCharacterizationProcedure = {
+  timeline: [
+    itiTrial,  // <-- add this before each real stimulus
+    {
       type: jsPsychHtmlKeyboardResponse,
       stimulus: function () {
         const sentence = jsPsych.timelineVariable('sentence');
@@ -107,18 +119,15 @@ if (startupIssues.length > 0) {
       },
       choices: ['f', 'j'],
       response_ends_trial: true,
-      data: {
-        trial_id: 'political_characterization',
-        stimulus: jsPsych.timelineVariable('sentence')
-      },
+      data: { stimulus: jsPsych.timelineVariable('sentence') },
       on_finish: function (data) {
-        // jsPsych v7 records the pressed key as a string ('f','j')
-        data.response_meaning = data.response === 'j' ? 'True' : (data.response === 'f' ? 'False' : null);
+        data.response_meaning = data.response === 'j' ? 'True' : 'False';
       }
-    }],
-    timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
-    randomize_order: false
-  };
+    }
+  ],
+  timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
+  randomize_order: false
+};
 
   // ---------------------------
   // Build & run
