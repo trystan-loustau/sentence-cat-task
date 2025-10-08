@@ -111,11 +111,11 @@ function advanceOnEnter(e) {
       <div class="key-reminder">
         <div class="key-col left">
           <div class="key-label">False</div>
-          <div class="key-key">F</div>
+          <div class="key-key">Press 'F'</div>
         </div>
         <div class="key-col right">
           <div class="key-label">True</div>
-          <div class="key-key">J</div>
+          <div class="key-key">Press 'J'</div>
         </div>
       </div>
     </div>
@@ -124,7 +124,6 @@ function advanceOnEnter(e) {
   trial_duration: 500,
   data: { trial_id: "iti" }
 };
-
 
   // ---------------------------
   // Sentence formatter
@@ -163,11 +162,11 @@ function advanceOnEnter(e) {
             <div class="key-reminder">
               <div class="key-col left">
                 <div class="key-label">False</div>
-                <div class="key-key">F</div>
+                <div class="key-key">Press 'F'</div>
               </div>
               <div class="key-col right">
                 <div class="key-label">True</div>
-                <div class="key-key">J</div>
+                <div class="key-key">Press 'J'</div>
               </div>
             </div>
           </div>`;
@@ -183,6 +182,7 @@ function advanceOnEnter(e) {
   timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
   randomize_order: false
 };
+
 
 
   // ---------------------------
