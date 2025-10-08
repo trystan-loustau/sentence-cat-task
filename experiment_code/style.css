@@ -1,6 +1,3 @@
-body {
-  margin-top: 50px;   /* small consistent barrier at the very top */
-}
 
 /* Overall jsPsych page layout */
 .jspsych-display-element {
@@ -24,33 +21,35 @@ body {
   height: 100%;
 }
 
-/* Fixed-width content wrapper */
+/* remove this; it doesn't affect a fixed/sticky header meaningfully */
+/* body { margin-top: 50px; } */
+
+/* container stays */
 .exp-wrap {
   width: 900px;
   max-width: 92vw;
   margin: 0 auto;
+  padding-top: 20px; /* small breathing room above content */
 }
 
-/* --- Fixed prompt header (single definition) --- */
+/* prompt "pinned" near top but still in flow */
 .prompt-top {
-  position: fixed;
-  top: 100px;
-  left: 50%;
-  transform: translateX(-50%);
+  position: sticky;
+  top: 20px;          /* gap from top of viewport */
   font-size: 22px;
   text-align: center;
   z-index: 1000;
-  background-color: white;      /* optional polish */
+  background: white;
   padding: 10px 20px;
   border-radius: 8px;
   border: none;
   box-shadow: none;
 }
 
-/* Big centered sentence */
+/* normal, modest spacing for the sentence */
 .stimulus-centered {
   font-size: 28px;
-  margin-top: 400px;            /* clears the fixed header */
+  margin-top: 40px;   /* small gap under prompt box */
   margin-bottom: 60px;
   text-align: center;
   line-height: 1.3;
