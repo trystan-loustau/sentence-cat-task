@@ -36,7 +36,6 @@ const coolInstructions = {
 
 const politicalCharacterizationTrial = {
     type: jsPsychHtmlButtonResponse,
-    prompt: '<br>Is the follow statement <b>True</b> or <b>False</b>?',
     choices: ['True', 'False'],
     timeline: politicalCharacterizationsStimuli, // <-- defined in stimuli.js
 }
