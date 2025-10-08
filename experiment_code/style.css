@@ -1,3 +1,7 @@
+body {
+  margin-top: 20px;   /* small consistent barrier at the very top */
+}
+
 /* Overall jsPsych page layout */
 .jspsych-display-element {
   display: flex;
