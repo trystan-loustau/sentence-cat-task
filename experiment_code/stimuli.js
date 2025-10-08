@@ -131,5 +131,14 @@ const politicalCharacterizations = [
 ]
 
 const politicalCharacterizationsStimuli = politicalCharacterizations.map((sentence) => {
-    return { stimulus: sentence }
+    return {
+        stimulus: `
+            <div style="font-size: 22px; margin-bottom: 20px;">
+                Is the following statement <b>True</b> or <b>False</b>?
+            </div>
+            <div style="font-size: 28px;">
+                ${sentence}
+            </div>
+        `
+    }
 });
