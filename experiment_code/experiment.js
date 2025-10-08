@@ -32,30 +32,41 @@ const coolInstructions = {
     }
 }
 
-// POLITICAL CHARACTERIZATIONS TRIAL
-
-const politicalCharacterizationTrial = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: function() {
-    return `
-      <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-      <div class="stimulus-centered">${jsPsych.timelineVariable('sentence')}</div>
-      <div class="key-reminder">
-        <span class="false-key">F = False</span>
-        <span class="true-key">J = True</span>
-      </div>
-    `;
-  },
-  choices: ['f', 'j'],
-  data: jsPsych.timelineVariable('data'),
-  on_finish: function(data){
-    data.response_meaning = data.response === 'f' ? 'False' : 'True';
-  },
-  timeline: politicalCharacterizations.map(sentence => ({
-    sentence: sentence,
-    data: { stimulus: sentence }
-  })),
+// POLITICAL CHARACTERIZATIONS TRIAL (keyboard + top prompt, using timeline_variables)
+const politicalCharacterizationProcedure = {
+  timeline: [{
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: function () {
+      const sentence = jsPsych.timelineVariable('sentence');
+      return `
+        <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+        <div class="stimulus-centered">${sentence}</div>
+        <div class="key-reminder">
+          <span class="false-key">F = False</span>
+          <span class="true-key">J = True</span>
+        </div>
+      `;
+    },
+    choices: ['f', 'j'],
+    response_ends_trial: true,
+    data: { stimulus: jsPsych.timelineVariable('sentence') },
+    on_finish: function (data) {
+      // record a friendly label for the pressed key
+      data.response_meaning = data.response === 'j' ? 'True' : 'False';
+    }
+  }],
+  timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
+  randomize_order: false
 };
+
+// ... later when building the experiment:
+var experiment = [];
+experiment.push(
+  coolInstructions,
+  politicalCharacterizationProcedure
+);
+
+jsPsych.run(experiment);
 
 // Create the experiment variable -- you need this to run the experiment!
 var experiment = [];
