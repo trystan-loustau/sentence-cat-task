@@ -5,8 +5,19 @@
   align-items: center;
   min-height: 100vh;
   margin: 0;
-  padding-top: 24px;        /* smaller top padding -> prompt higher */
+  padding-top: 10px;        /* smaller top padding -> prompt higher */
   font-family: Arial, sans-serif;
+}
+
+/* Force jsPsych content to start from the top rather than vertical-center */
+#jspsych-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start !important;
+  align-items: center;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  height: 100%;
 }
 
 /* Fixed-width content wrapper so positions don't shift with sentence length */
