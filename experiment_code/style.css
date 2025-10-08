@@ -113,7 +113,7 @@
 .connector {
   display: inline-block;
   text-align: center;
-  width: 80px; /* spacing between first and second parts */
+  width: 100px; /* spacing between first and second parts */
 }
 
 .variable-part {
