@@ -217,57 +217,44 @@ const practiceProcedure = {
   randomize_order: true   // ⬅️ randomize practice
 };
 // Shown only when practice isn't perfect
-const practiceRetryNotice = {
+
+// One screen that adapts message based on accuracy
+const practiceGateScreen = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: function () {
-    // accuracy for the most recent practice pass:
     const n = practiceStimuli.length;
     const lastBlock = jsPsych.data.get().filter({ trial_id: 'practice' }).last(n);
     const acc = lastBlock.select('correct').mean() || 0;
+    const perfect = acc === 1;
+
+    const msg = perfect
+      ? `Great job — you answered all practice items correctly.<br/><br/>
+         Press any key to begin the <b>main practice</b>.`
+      : `You got ${(acc*100).toFixed(0)}% correct.<br/>
+         Please reach <b>100%</b> to continue.<br/><br/>
+         Press any key to try the practice again.`;
+
     return `
       <div class="exp-wrap">
-        <div class="stimulus-centered">
-          You got ${(acc*100).toFixed(0)}% correct.<br/>
-          Please reach <b>100%</b> to continue.<br/><br/>
-          Press any key to try the practice again.
-        </div>
+        <div class="stimulus-centered">${msg}</div>
       </div>
     `;
   },
   choices: "ALL_KEYS",
-  data: { trial_id: 'practice_retry_notice' },
-  conditional_function: function () {
-    const n = practiceStimuli.length;
-    const lastBlock = jsPsych.data.get().filter({ trial_id: 'practice' }).last(n);
-    const acc = lastBlock.select('correct').mean() || 0;
-    return acc < 1;
-  }
+  data: { trial_id: 'practice_gate' }
 };
 
-  // Repeat the entire practice block until accuracy is 100%
+  
+// Repeat practice until perfect; the gate screen shows either "try again" or "begin main practice"
 const practiceLoop = {
-  timeline: [practiceProcedure, practiceRetryNotice],
+  timeline: [practiceProcedure, practiceGateScreen],
   loop_function: function(data) {
     const acc = data.filter({ trial_id: 'practice' }).select('correct').mean() || 0;
-    return acc < 1; // repeat until perfect
+    return acc < 1; // true => repeat practice
   }
 };
 
 
-const practiceComplete = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: `
-    <div class="exp-wrap">
-      <div class="stimulus-centered">
-        Practice complete.<br/><br/>
-        Press any key to begin the main task.
-      </div>
-    </div>
-  `,
-  choices: "ALL_KEYS",
-  response_ends_trial: true,
-  data: { trial_id: 'practice_complete' }
-};
 
   // ---------------------------
   // Political Characterizations
@@ -315,10 +302,11 @@ const practiceComplete = {
 const experiment = [];
 experiment.push(
   coolInstructions,
-  practiceLoop,        // ⬅️ repeats until 100% correct
-  practiceComplete,    // ⬅️ shown only after perfect practice
+  practiceLoop,        // repeats until 100%
+  // practiceComplete  ← remove this; the gate screen already handles the “begin” message
   politicalCharacterizationProcedure
 );
 jsPsych.run(experiment);
+
 
 } // <— closes the big else
