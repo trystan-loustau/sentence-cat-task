@@ -115,9 +115,33 @@
 
 /* ---------- Practice-only tweaks (optional) ---------- */
 /* If you want a different starting point or gap in practice, adjust variables */
+/* Practice: fix the spacing to be truly equal around the connector */
 .practice-shift .sentence-fixed {
-  /* examples: */
-  /* --first-col: 240px;    /* moves connector/right part to the right */
-  /* --gap: 18px;           /* increases equal spacing on both sides */
-  /* margin-left: 0;        /* or nudge whole block if you really need to */
+  display: grid;
+  grid-template-columns: var(--first-col, 180px) max-content 1fr; /* first | connector | rest */
+  column-gap: var(--gap, 16px);  /* equal space on both sides of connector */
+  width: 600px;
+  margin: 0 auto;
+  align-items: baseline;
+  text-align: left;
 }
+
+.practice-shift .fixed-first {
+  justify-self: end;   /* <-- pushes first word to the RIGHT edge of col 1 */
+  text-align: right;   /* so the gap = column-gap, not column width */
+  white-space: nowrap;
+}
+
+.practice-shift .connector {
+  justify-self: center;
+  text-align: center;
+  white-space: nowrap;
+  padding: 0;          /* no extra spacing */
+  width: auto;         /* no fixed width */
+}
+
+.practice-shift .variable-part {
+  justify-self: start;
+  text-align: left;
+}
+
