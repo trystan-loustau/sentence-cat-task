@@ -136,11 +136,11 @@
 .practice-shift .sentence-fixed {
   /* switch to grid for rock-solid column control in practice only */
   display: grid;
-  grid-template-columns: 270px 90px 1fr;  /* first word | connector | rest */
+  grid-template-columns: 100px 90px 1fr;  /* first word | connector | rest */
   align-items: baseline;
 
   width: 600px;      /* same base width */
-  margin: 0;         /* align to the left edge of the wrapper (not centered) */
+  margin: 10px;         /* align to the left edge of the wrapper (not centered) */
   position: relative;
   text-align: left;
 }
