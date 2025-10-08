@@ -130,31 +130,31 @@
   opacity: 0.7;
 }
 
-/* ---------- PRACTICE-ONLY ALIGNMENT ---------- */
-/* Lock columns so every practice sentence starts at the same x-position,
-   and shift the whole practice sentence block a bit LEFT. */
+/* Practice-only: grid columns with no hard-coded connector width */
 .practice-shift .sentence-fixed {
-  /* switch to grid for rock-solid column control in practice only */
   display: grid;
-  grid-template-columns: 100px 90px 1fr;  /* first word | connector | rest */
+  grid-template-columns: 220px auto 1fr;  /* first word | connector | rest */
+  column-gap: 12px;                        /* space between columns */
   align-items: baseline;
-
-  width: 600px;      /* same base width */
-  margin: 50px;         /* align to the left edge of the wrapper (not centered) */
-  position: relative;
+  width: 600px;
+  margin: 0 auto;                          /* keep centered; see note below */
   text-align: left;
 }
 
-.practice-shift .fixed-first {
-  text-align: left;     /* left edge of first word is fixed */
-  white-space: nowrap;  /* prevents wrapping of the first word */
+/* Tighten connector in practice (override global rules) */
+.practice-shift .connector {
+  width: auto;             /* override any global fixed width */
+  padding: 0;              /* no extra padding — column-gap handles spacing */
+  text-align: center;
+  white-space: nowrap;
 }
 
-.practice-shift .connector {
-  text-align: center;
+.practice-shift .fixed-first {
+  text-align: left;
   white-space: nowrap;
 }
 
 .practice-shift .variable-part {
   text-align: left;
 }
+
