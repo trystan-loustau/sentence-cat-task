@@ -76,3 +76,30 @@
   font-size: 18px;
   opacity: 0.85;
 }
+/* --- Keep first word fixed in position --- */
+.sentence-fixed {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  text-align: left;
+  width: 600px;           /* width of total sentence area */
+  margin: 0 auto;
+}
+
+.fixed-first {
+  display: inline-block;
+  width: 180px;           /* set width for first word column */
+  text-align: right;      /* right-align first word to edge of "are/have" */
+}
+
+.connector {
+  display: inline-block;
+  text-align: center;
+  width: 80px;            /* adjust spacing between first and second parts */
+}
+
+.variable-part {
+  display: inline-block;
+  text-align: left;
+  flex: 1;
+}
