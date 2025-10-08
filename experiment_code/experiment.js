@@ -39,11 +39,19 @@ const politicalCharacterizationProcedure = {
     stimulus: function () {
       const sentence = jsPsych.timelineVariable('sentence');
       return `
-        <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-        <div class="stimulus-centered">${sentence}</div>
-        <div class="key-reminder">
-          <span class="false-key">F = False</span>
-          <span class="true-key">J = True</span>
+        <div class="exp-wrap">
+          <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+          <div class="stimulus-centered">${sentence}</div>
+          <div class="key-reminder">
+            <div class="key-col left">
+              <div class="key-label">False</div>
+              <div class="key-key">F</div>
+            </div>
+            <div class="key-col right">
+              <div class="key-label">True</div>
+              <div class="key-key">J</div>
+            </div>
+          </div>
         </div>
       `;
     },
@@ -51,7 +59,6 @@ const politicalCharacterizationProcedure = {
     response_ends_trial: true,
     data: { stimulus: jsPsych.timelineVariable('sentence') },
     on_finish: function (data) {
-      // record a friendly label for the pressed key
       data.response_meaning = data.response === 'j' ? 'True' : 'False';
     }
   }],
