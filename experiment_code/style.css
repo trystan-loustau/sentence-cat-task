@@ -61,7 +61,6 @@
   text-align: center;
   line-height: 1.3;
   min-height: 2.2em;
-  transform: translateX(150px);
 }
 
 /* ---------- Left/Right key hints (per-trial) ---------- */
@@ -97,6 +96,7 @@
   text-align: left;
   width: 600px; /* width of total sentence area */
   margin: 0 auto;
+  transform: translateX(40px);
 }
 
 .fixed-first {
