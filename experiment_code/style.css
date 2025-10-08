@@ -40,13 +40,13 @@
   padding: 10px 20px;
   border-radius: 8px;
   border: none;
-  box-shadow: none;          /* was a subtle shadow before; removed per your preference */
+  box-shadow: none;          /* subtle shadow removed */
 }
 
 /* ---------- Main sentence ---------- */
 .stimulus-centered {
   font-size: 28px;
-  margin-top: 120px;         /* clears the fixed prompt box; increase if needed */
+  margin-top: 120px;         /* clears the fixed prompt box */
   margin-bottom: 60px;
   text-align: center;
   line-height: 1.3;
