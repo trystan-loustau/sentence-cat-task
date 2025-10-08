@@ -88,7 +88,7 @@ const itiTrial = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: '',
   choices: "NO_KEYS",
-  trial_duration: 500, // 1 second
+  trial_duration: 250, // 
   data: { trial_id: "iti" }
 };
 
