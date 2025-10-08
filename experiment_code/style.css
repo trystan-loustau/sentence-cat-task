@@ -88,32 +88,32 @@
   opacity: 0.85;
 }
 
-/* ---------- Sentence formatting ---------- */
+/* ---------- Sentence formatting (BASE for all trials) ---------- */
+/* Base sentence block stays centered for main trials */
 .sentence-fixed {
   display: flex;
   justify-content: center;
   align-items: baseline;
   text-align: left;
-  width: 600px; /* width of total sentence area */
-  margin: 0 auto;
+  width: 600px;       /* width of total sentence area */
+  margin: 0 auto;     /* center the whole sentence block */
 }
 
-.stimulus-centered .sentence-fixed {
-  position: relative;
-  left: 100px !important; /* negative moves left */
-}
-
+/* DO NOT globally nudge sentence position here. 
+   (Removed the .stimulus-centered .sentence-fixed { left: ... } rule) */
 
 .fixed-first {
   display: inline-block;
-  width: 180px; /* set width for first word column */
-  text-align: right; /* right-align first word to edge of "are/have" */
+  width: 180px;       /* set width for first word column */
+  text-align: right;  /* right-align first word to edge of "are/have" */
+  white-space: nowrap;
 }
 
 .connector {
   display: inline-block;
   text-align: center;
-  width: 100px; /* spacing between first and second parts */
+  width: 100px;       /* spacing between first and second parts */
+  white-space: nowrap;
 }
 
 .variable-part {
@@ -122,6 +122,7 @@
   flex: 1;
 }
 
+/* Hint under welcome screen */
 .enter-hint {
   margin-top: 40px;
   font-size: 18px;
@@ -129,24 +130,25 @@
   opacity: 0.7;
 }
 
+/* ---------- PRACTICE-ONLY ALIGNMENT ---------- */
+/* Lock columns so every practice sentence starts at the same x-position,
+   and shift the whole practice sentence block a bit LEFT. */
 .practice-shift .sentence-fixed {
-  left: 0 !important;
-  transform: none !important;
-}
-
-/* Practice-only: lock columns so every sentence starts in the same place */
-.practice-shift .sentence-fixed {
+  /* switch to grid for rock-solid column control in practice only */
   display: grid;
-  grid-template-columns: 220px 100px 1fr; /* first word | connector | rest */
+  grid-template-columns: 220px 100px 1fr;  /* first word | connector | rest */
   align-items: baseline;
-  width: 600px;          /* keep same as your base sentence width */
-  margin: 0;        /* keeps the whole block centered on the page */
+
+  width: 600px;      /* same base width */
+  margin: 0;         /* align to the left edge of the wrapper (not centered) */
+  position: relative;
+  left: -40px;       /* negative = move further left; tweak to taste */
   text-align: left;
 }
 
 .practice-shift .fixed-first {
-  text-align: left;      /* left edge of first word is fixed */
-  white-space: nowrap;   /* prevents wrapping of the first word */
+  text-align: left;     /* left edge of first word is fixed */
+  white-space: nowrap;  /* prevents wrapping of the first word */
 }
 
 .practice-shift .connector {
@@ -157,4 +159,3 @@
 .practice-shift .variable-part {
   text-align: left;
 }
-
