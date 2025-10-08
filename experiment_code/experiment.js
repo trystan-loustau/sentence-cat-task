@@ -236,6 +236,7 @@ function setPromptVisible(visible) {
 // One screen that adapts message based on accuracy
 const practiceGateScreen = {
   type: jsPsychHtmlKeyboardResponse,
+  choices: "NO_KEYS",   // turn off plugin key capture
   stimulus: function () {
     const acc = lastPracticeAccuracy();
     const perfect = acc >= 0.999;
@@ -251,10 +252,24 @@ const practiceGateScreen = {
       </div>
     `;
   },
-  choices: ['Enter'],                   // Enter-only for both cases
-  data: { trial_id: 'practice_gate' },
-  on_start: function(){ document.body.classList.add('hide-prompt'); },
-  on_finish: function(){ document.body.classList.remove('hide-prompt'); }
+  on_start: function () {
+    document.body.classList.add('hide-prompt'); // hide the fixed prompt
+  },
+  on_load: function () {
+    // add a *scoped* handler that only advances on Enter
+    window.__gateEnterHandler = function (e) {
+      if (e.key === 'Enter') {
+        jsPsych.finishTrial();
+      }
+    };
+    document.addEventListener('keydown', window.__gateEnterHandler);
+  },
+  on_finish: function () {
+    document.body.classList.remove('hide-prompt');
+    document.removeEventListener('keydown', window.__gateEnterHandler);
+    delete window.__gateEnterHandler;
+  },
+  data: { trial_id: 'practice_gate' }
 };
 
 
