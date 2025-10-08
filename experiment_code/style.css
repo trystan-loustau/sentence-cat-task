@@ -34,10 +34,26 @@
   text-align: center;
 }
 
+/* --- Fixed prompt header --- */
+.prompt-top {
+  position: fixed;
+  top: 20px;               /* distance from top edge */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 22px;
+  text-align: center;
+  z-index: 1000;           /* ensure it stays above jsPsych content */
+  background-color: white; /* optional: prevents overlap flicker */
+  padding: 10px 20px;
+  border-radius: 8px;      /* optional subtle visual polish */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* subtle drop shadow */
+}
+
 /* Big centered sentence */
 .stimulus-centered {
   font-size: 28px;
-  margin: 48px 0;           /* space around the sentence */
+  margin-top: 100px;   /* adds breathing room under the fixed prompt */
+  margin-bottom: 60px;
   text-align: center;
   line-height: 1.3;
 }
