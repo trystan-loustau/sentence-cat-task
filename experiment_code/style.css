@@ -100,7 +100,7 @@
 
 .stimulus-centered .sentence-fixed {
   position: relative;
-  left: 100px; /* negative moves left */
+  left: 100px !important; /* negative moves left */
 }
 
 
