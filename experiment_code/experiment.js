@@ -88,19 +88,10 @@ const coolInstructions = {
     if (!document.getElementById('fixed-ui')) {
   const ui = document.createElement('div');
   ui.id = 'fixed-ui';
-  ui.innerHTML = `
-    <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-    <div class="key-reminder">
-      <div class="key-col left">
-        <div class="key-label">False</div>
-        <div class="key-key">Press 'F'</div>
-      </div>
-      <div class="key-col right">
-        <div class="key-label">True</div>
-        <div class="key-key">Press 'J'</div>
-      </div>
-    </div>
-  `;
+ // in coolInstructions.on_finish
+ui.innerHTML = `
+  <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+`;
   document.body.appendChild(ui);
 }
   }
