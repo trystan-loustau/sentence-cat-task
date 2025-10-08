@@ -3,7 +3,6 @@
 // QUICK RUNTIME GUARDS (so we don't fail silently)
 function assert(condition, message) {
   if (!condition) {
-    // Render a visible error into the page as well as throwing, so you don’t just see a blank screen.
     const el = document.createElement('pre');
     el.style.whiteSpace = 'pre-wrap';
     el.style.padding = '16px';
@@ -20,8 +19,7 @@ function assert(condition, message) {
 // Verify jsPsych core
 assert(typeof initJsPsych === 'function', 'initJsPsych not found. Is jspsych.js loaded before experiment.js?');
 
-// Verify plugins (global names depend on how you included them)
-// If you included the UMD bundles (script tags), these globals should exist:
+// Verify plugins (UMD globals)
 assert(typeof window.jsPsychInstructions !== 'undefined', 'jsPsychInstructions not found. Did you include @jspsych/plugin-instructions?');
 assert(typeof window.jsPsychHtmlKeyboardResponse !== 'undefined', 'jsPsychHtmlKeyboardResponse not found. Did you include @jspsych/plugin-html-keyboard-response?');
 
@@ -61,126 +59,106 @@ if (startupIssues.length > 0) {
   jsPsych.run([diag]);
   // Don’t proceed to the real timeline
 } else {
+
   // ---------------------------
   // Instructions
   // ---------------------------
   const coolInstructions = {
-  type: jsPsychInstructions,
-  pages: function () { return [introduction_page]; },
-  allow_keys: false,
-  show_clickable_nav: true,
-  allow_backward: true,
-  show_page_number: true,
-  data: { trial_id: "cool_instructions" },
-  on_finish: function () {
-    const ui = document.createElement('div');
-    ui.id = 'fixed-ui';
-    ui.innerHTML = `
-      <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-      <div class="key-reminder">
-        <div class="key-col left">
-          <div class="key-label">False</div>
-          <div class="key-key">F</div>
-        </div>
-        <div class="key-col right">
-          <div class="key-label">True</div>
-          <div class="key-key">J</div>
-        </div>
-      </div>`;
-    document.body.appendChild(ui);
-  }
-};
+    type: jsPsychInstructions,
+    pages: function () { return [introduction_page]; },
+    allow_keys: false,
+    show_clickable_nav: true,
+    allow_backward: true,
+    show_page_number: true,
+    data: { trial_id: "cool_instructions" },
+    on_finish: function () {
+      // Inject persistent header/keys AFTER instructions
+      const ui = document.createElement('div');
+      ui.id = 'fixed-ui';
+      ui.innerHTML = `
+        <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+        <div class="key-reminder">
+          <div class="key-col left">
+            <div class="key-label">False</div>
+            <div class="key-key">F</div>
+          </div>
+          <div class="key-col right">
+            <div class="key-label">True</div>
+            <div class="key-key">J</div>
+          </div>
+        </div>`;
+      document.body.appendChild(ui);
+    }
+  };
 
-
-const showFixedUI = {
-  type: jsPsychCallFunction,
-  func: function () {
-    const ui = document.createElement('div');
-    ui.id = 'fixed-ui';
-    ui.innerHTML = `
-      <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
-      <div class="key-reminder">
-        <div class="key-col left">
-          <div class="key-label">False</div>
-          <div class="key-key">F</div>
-        </div>
-        <div class="key-col right">
-          <div class="key-label">True</div>
-          <div class="key-key">J</div>
-        </div>
+  // ---------------------------
+  // ITI (blank sentence, header persists)
+  // ---------------------------
+  const itiTrial = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: () => `
+      <div class="exp-wrap">
+        <div class="stimulus-centered" aria-hidden="true">&nbsp;</div>
       </div>
-    `;
-    document.body.appendChild(ui);
-  }
-};
+    `,
+    choices: "NO_KEYS",
+    trial_duration: 500, // adjust lag here (ms)
+    data: { trial_id: "iti" }
+  };
 
-  
-const itiTrial = {
-  type: jsPsychHtmlKeyboardResponse,
-  stimulus: () => `
-    <div class="exp-wrap">
-      <div class="stimulus-centered" aria-hidden="true">&nbsp;</div>
-    </div>
-  `,
-  choices: "NO_KEYS",
-  trial_duration: 500,
-  data: { trial_id: "iti" }
-};
-
-const politicalCharacterizationProcedure = {
-  timeline: [
-    itiTrial,
-    {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: function () {
-        const sentence = jsPsych.timelineVariable('sentence');
+  // ---------------------------
+  // Sentence formatter
+  // ---------------------------
+  function formatSentence(sentence) {
+    const match = sentence.match(/\s+(are|have)\s+/i);
+    if (match) {
+      const connector = match[1];
+      const parts = sentence.split(new RegExp(`\\s+${connector}\\s+`, 'i'));
+      if (parts.length === 2) {
         return `
-          <div class="exp-wrap">
-            <div class="stimulus-centered">${formatSentence(sentence)}</div>
-          </div>`;
-      },
-      choices: ['f','j'],
-      response_ends_trial: true,
-      data: { trial_id:'political_characterization', stimulus: jsPsych.timelineVariable('sentence') },
-      on_finish: function (d){ d.response_meaning = d.response==='j'?'True':(d.response==='f'?'False':null); }
+          <div class="sentence-fixed">
+            <span class="fixed-first"><b>${parts[0]}</b></span>
+            <span class="connector">&nbsp;&nbsp;${connector}&nbsp;&nbsp;</span>
+            <span class="variable-part"><b>${parts[1]}</b></span>
+          </div>
+        `;
+      }
     }
-  ],
-  timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
-  randomize_order: false
-};
-
-
-
-function formatSentence(sentence) {
-  const match = sentence.match(/\s+(are|have)\s+/i);
-
-  if (match) {
-    const connector = match[1]; // "are" or "have"
-    const parts = sentence.split(new RegExp(`\\s+${connector}\\s+`, 'i'));
-
-    if (parts.length === 2) {
-      return `
-        <div class="sentence-fixed">
-          <span class="fixed-first"><b>${parts[0]}</b></span>
-          <span class="connector">&nbsp;&nbsp;${connector}&nbsp;&nbsp;</span>
-          <span class="variable-part"><b>${parts[1]}</b></span>
-        </div>
-      `;
-    }
+    return `<div class="sentence-fixed"><b>${sentence}</b></div>`;
   }
 
-  // fallback if no connector found
-  return `<div class="sentence-fixed"><b>${sentence}</b></div>`;
-}
-
-
-// POLITICAL CHARACTERIZATIONS TRIAL (keyboard response, prompt fixed at top)
-
+  // ---------------------------
+  // Political Characterizations
+  // ---------------------------
+  const politicalCharacterizationProcedure = {
+    timeline: [
+      itiTrial,
+      {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function () {
+          const sentence = jsPsych.timelineVariable('sentence');
+          return `
+            <div class="exp-wrap">
+              <div class="stimulus-centered">${formatSentence(sentence)}</div>
+            </div>`;
+        },
+        choices: ['f','j'],
+        response_ends_trial: true,
+        data: { trial_id:'political_characterization', stimulus: jsPsych.timelineVariable('sentence') },
+        on_finish: function (d){
+          d.response_meaning = d.response==='j'?'True':(d.response==='f'?'False':null);
+        }
+      }
+    ],
+    timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
+    randomize_order: false
+  };
 
   // ---------------------------
   // Build & run
   // ---------------------------
   const experiment = [];
-experiment.push(coolInstructions, itiTrial, politicalCharacterizationProcedure);
-jsPsych.run(experiment);
+  experiment.push(coolInstructions, itiTrial, politicalCharacterizationProcedure);
+  jsPsych.run(experiment);
 
+} // <— closes the big else
