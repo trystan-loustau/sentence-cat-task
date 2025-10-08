@@ -85,7 +85,31 @@ if (startupIssues.length > 0) {
   // ---------------------------
   // --- Add a 1-second intertrial interval --- //
 // --- 1-second intertrial interval that keeps prompt & key hints visible --- //
-const itiTrial = {
+// Add fixed prompt + key hints after instructions finish
+const showFixedUI = {
+  type: jsPsychCallFunction,
+  func: function () {
+    const ui = document.createElement('div');
+    ui.id = 'fixed-ui';
+    ui.innerHTML = `
+      <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+      <div class="key-reminder">
+        <div class="key-col left">
+          <div class="key-label">False</div>
+          <div class="key-key">F</div>
+        </div>
+        <div class="key-col right">
+          <div class="key-label">True</div>
+          <div class="key-key">J</div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(ui);
+  }
+};
+
+  
+  const itiTrial = {
   type: jsPsychHtmlKeyboardResponse,
   stimulus: () => `
     <div class="exp-wrap">
@@ -173,6 +197,6 @@ const politicalCharacterizationProcedure = {
   // Build & run
   // ---------------------------
   const experiment = [];
-  experiment.push(coolInstructions, politicalCharacterizationProcedure);
+  experiment.push(coolInstructions, showFixedUI, itiTrial, politicalCharacterizationProcedure);
   jsPsych.run(experiment);
 }
