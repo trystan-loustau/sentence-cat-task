@@ -35,13 +35,25 @@ const coolInstructions = {
 // POLITICAL CHARACTERIZATIONS TRIAL
 
 const politicalCharacterizationTrial = {
-  type: jsPsychHtmlButtonResponse,
-  choices: ['True', 'False'],
+  type: jsPsychHtmlKeyboardResponse,
+  stimulus: function() {
+    return `
+      <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+      <div class="stimulus-centered">${jsPsych.timelineVariable('sentence')}</div>
+      <div class="key-reminder">
+        <span class="false-key">F = False</span>
+        <span class="true-key">J = True</span>
+      </div>
+    `;
+  },
+  choices: ['f', 'j'],
+  data: jsPsych.timelineVariable('data'),
+  on_finish: function(data){
+    data.response_meaning = data.response === 'f' ? 'False' : 'True';
+  },
   timeline: politicalCharacterizations.map(sentence => ({
-    stimulus: `
-      <div class="prompt">Is the following statement <b>True</b> or <b>False</b>?</div>
-      <div class="stimulus">${sentence}</div>
-    `
+    sentence: sentence,
+    data: { stimulus: sentence }
   })),
 };
 
