@@ -1,7 +1,38 @@
-.prompt {
-  font-size: 22px;
-  margin-bottom: 15px;
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* pushes content toward the top */
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  padding-top: 60px; /* space from very top */
+  font-family: Arial, sans-serif;
 }
-.stimulus {
+
+.prompt-top {
+  font-size: 22px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.stimulus-centered {
   font-size: 28px;
+  margin-bottom: 60px;
+  text-align: center;
+}
+
+.key-reminder {
+  display: flex;
+  justify-content: space-between;
+  width: 40%;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.false-key {
+  text-align: left;
+}
+
+.true-key {
+  text-align: right;
 }
