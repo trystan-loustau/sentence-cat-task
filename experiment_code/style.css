@@ -9,7 +9,6 @@
   font-family: Arial, sans-serif;
 }
 
-/* Ensure jsPsych content isn't vertically centered by default */
 #jspsych-content {
   display: flex;
   flex-direction: column;
@@ -20,7 +19,7 @@
   height: 100%;
 }
 
-/* Fixed-width content wrapper so positions don't shift with sentence length */
+/* Fixed-width content wrapper */
 .exp-wrap {
   width: 900px;
   max-width: 92vw;
@@ -36,7 +35,7 @@
   width: 900px;
   max-width: 92vw;
   z-index: 2000;
-  pointer-events: none; /* doesn't block keys/clicks */
+  pointer-events: none;
   display: flex;
   justify-content: center;
 }
@@ -53,76 +52,29 @@
   box-shadow: none;
 }
 
-/* ---------- Main sentence ---------- */
+/* ---------- Main sentence container ---------- */
 .stimulus-centered {
   font-size: 28px;
-  margin-top: 80px; /* clears the fixed prompt */
+  margin-top: 80px;  /* clears the fixed prompt */
   margin-bottom: 60px;
-  text-align: center;
+  text-align: center; /* the inner grid handles its own alignment */
   line-height: 1.3;
   min-height: 2.2em;
 }
 
-/* ---------- Left/Right key hints (per-trial) ---------- */
+/* ---------- Key hints ---------- */
 .key-reminder {
   display: flex;
-  justify-content: space-between; /* pins to left/right edges of wrapper */
+  justify-content: space-between;
   align-items: flex-start;
   width: 100%;
   margin-top: 24px;
 }
 
-.key-col {
-  width: 140px;
-  text-align: center;
-}
+.key-col { width: 140px; text-align: center; }
+.key-label { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+.key-key { font-size: 18px; opacity: 0.85; }
 
-.key-label {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 6px; /* label above the key */
-}
-
-.key-key {
-  font-size: 18px;
-  opacity: 0.85;
-}
-
-/* ---------- Sentence formatting (BASE for all trials) ---------- */
-/* Base sentence block stays centered for main trials */
-.sentence-fixed {
-  display: flex;
-  justify-content: center;
-  align-items: baseline;
-  text-align: left;
-  width: 600px;       /* width of total sentence area */
-  margin: 0 auto;     /* center the whole sentence block */
-}
-
-/* DO NOT globally nudge sentence position here. 
-   (Removed the .stimulus-centered .sentence-fixed { left: ... } rule) */
-
-.fixed-first {
-  display: inline-block;
-  width: 180px;       /* set width for first word column */
-  text-align: right;  /* right-align first word to edge of "are/have" */
-  white-space: nowrap;
-}
-
-.connector {
-  display: inline-block;
-  text-align: center;
-  width: 100px;       /* spacing between first and second parts */
-  white-space: nowrap;
-}
-
-.variable-part {
-  display: inline-block;
-  text-align: left;
-  flex: 1;
-}
-
-/* Hint under welcome screen */
 .enter-hint {
   margin-top: 40px;
   font-size: 18px;
@@ -130,31 +82,42 @@
   opacity: 0.7;
 }
 
-/* Practice-only: grid columns with no hard-coded connector width */
-.practice-shift .sentence-fixed {
+/* ---------- Sentence formatting (Grid for BOTH main & practice) ---------- */
+/* Use CSS variables so you can tweak first-column width or gap per context */
+.sentence-fixed {
+  --first-col: 220px;   /* width for the first word column */
+  --gap: 16px;          /* equal space on BOTH sides of the connector */
+
   display: grid;
-  grid-template-columns: 220px auto 1fr;  /* first word | connector | rest */
-  column-gap: 12px;                        /* space between columns */
+  grid-template-columns: var(--first-col) max-content 1fr; /* first | connector | rest */
+  column-gap: var(--gap);
   align-items: baseline;
-  width: 600px;
-  margin: 0 auto;                          /* keep centered; see note below */
+
+  width: 600px;      /* total sentence area */
+  margin: 0 auto;    /* center the whole sentence block in the wrapper */
   text-align: left;
 }
 
-/* Tighten connector in practice (override global rules) */
-.practice-shift .connector {
-  width: auto;             /* override any global fixed width */
-  padding: 0;              /* no extra padding — column-gap handles spacing */
-  text-align: center;
+.fixed-first {
+  text-align: right;   /* snug against the connector */
+  white-space: nowrap; /* avoid wrap on long first word */
+}
+
+.connector {
+  text-align: center;  /* visually centered between the two parts */
   white-space: nowrap;
+  /* no width, no padding — the column-gap controls spacing equally */
 }
 
-.practice-shift .fixed-first {
-  text-align: left;
-  white-space: nowrap;
-}
-
-.practice-shift .variable-part {
+.variable-part {
   text-align: left;
 }
 
+/* ---------- Practice-only tweaks (optional) ---------- */
+/* If you want a different starting point or gap in practice, adjust variables */
+.practice-shift .sentence-fixed {
+  /* examples: */
+  /* --first-col: 240px;    /* moves connector/right part to the right */
+  /* --gap: 18px;           /* increases equal spacing on both sides */
+  /* margin-left: 0;        /* or nudge whole block if you really need to */
+}
