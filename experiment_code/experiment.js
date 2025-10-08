@@ -35,10 +35,17 @@ const coolInstructions = {
 // POLITICAL CHARACTERIZATIONS TRIAL
 
 const politicalCharacterizationTrial = {
-    type: jsPsychHtmlButtonResponse,
-    choices: ['True', 'False'],
-    timeline: politicalCharacterizationsStimuli, // <-- defined in stimuli.js
-}
+  type: jsPsychHtmlButtonResponse,
+  choices: ['True', 'False'],
+  timeline: politicalCharacterizationsStimuli.map(s => ({
+    stimulus: `
+      <div style="font-size:22px; margin-bottom:15px;">
+        Is the following statement <b>True</b> or <b>False</b>?
+      </div>
+      <div style="font-size:28px;">${s.stimulus}</div>
+    `
+  })),
+};
 
 // Create the experiment variable -- you need this to run the experiment!
 var experiment = [];
