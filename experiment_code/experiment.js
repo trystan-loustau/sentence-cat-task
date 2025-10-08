@@ -84,13 +84,30 @@ if (startupIssues.length > 0) {
   // Political Characterizations
   // ---------------------------
   // --- Add a 1-second intertrial interval --- //
+// --- 1-second intertrial interval that keeps prompt & key hints visible --- //
 const itiTrial = {
   type: jsPsychHtmlKeyboardResponse,
-  stimulus: '',
+  stimulus: () => `
+    <div class="exp-wrap">
+      <div class="prompt-top">Is the following statement <b>True</b> or <b>False</b>?</div>
+      <div class="stimulus-centered" aria-hidden="true">&nbsp;</div>  <!-- blank sentence slot -->
+      <div class="key-reminder">
+        <div class="key-col left">
+          <div class="key-label">False</div>
+          <div class="key-key">F</div>
+        </div>
+        <div class="key-col right">
+          <div class="key-label">True</div>
+          <div class="key-key">J</div>
+        </div>
+      </div>
+    </div>
+  `,
   choices: "NO_KEYS",
-  trial_duration: 150, // 
+  trial_duration: 1000, // adjust to taste (e.g., 500 for 0.5s)
   data: { trial_id: "iti" }
 };
+
 
 function formatSentence(sentence) {
   const match = sentence.match(/\s+(are|have)\s+/i);
