@@ -140,7 +140,7 @@
   align-items: baseline;
 
   width: 600px;      /* same base width */
-  margin: 10px;         /* align to the left edge of the wrapper (not centered) */
+  margin: 50px;         /* align to the left edge of the wrapper (not centered) */
   position: relative;
   text-align: left;
 }
