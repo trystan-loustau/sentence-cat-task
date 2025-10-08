@@ -63,18 +63,30 @@ if (startupIssues.length > 0) {
   // ---------------------------
   // Instructions
   // ---------------------------
-  const coolInstructions = {
+const coolInstructions = {
   type: jsPsychInstructions,
   pages: function () { return [introduction_page]; },
-  show_clickable_nav: false,   // hide Next/Previous buttons
+  show_clickable_nav: false,    // hide next/previous buttons
   allow_backward: false,
   data: { trial_id: "cool_instructions" },
-  on_start: function() {
-    // add visual hint for participants
+  on_load: function() {
+    // show a subtle hint at the bottom if you want
+    const hint = document.createElement('div');
+    hint.textContent = "Press Enter to continue";
+    hint.style.marginTop = "40px";
+    hint.style.fontSize = "18px";
+    hint.style.textAlign = "center";
+    hint.style.opacity = "0.6";
+    document.querySelector('.jspsych-content').appendChild(hint);
+
+    // add Enter key listener
     document.addEventListener('keydown', advanceOnEnter);
   },
   on_finish: function() {
+    // remove listener when done (so it doesn’t interfere later)
     document.removeEventListener('keydown', advanceOnEnter);
+
+    // show your persistent UI (prompt + keys)
     if (!document.getElementById('fixed-ui')) {
       const ui = document.createElement('div');
       ui.id = 'fixed-ui';
@@ -86,12 +98,13 @@ if (startupIssues.length > 0) {
   }
 };
 
-// helper function for advancing with Enter key
+// --- helper: only advances on Enter ---
 function advanceOnEnter(e) {
   if (e.key === 'Enter') {
-    jsPsych.finishTrial();  // proceed to next part of the experiment
+    jsPsych.finishTrial();  // move to the next part of the experiment
   }
 }
+
 
 
   // ---------------------------
