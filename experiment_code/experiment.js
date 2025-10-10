@@ -134,6 +134,10 @@ const jsPsych = initJsPsych({
   }
 });
 
+// ---- Practice gating state (top-level, not inside on_finish) ----
+let practiceAttempts = 0;   // number of failed full practice rounds so far
+let passedPractice = false; // set to true once accuracy reaches 100%
+
 // Tag each row with participant/session info
 jsPsych.data.addProperties({
   sid: sid,
@@ -373,18 +377,52 @@ if (startupIssues.length > 0) {
     data: { trial_id: 'practice_gate' }
   };
 
-  // Repeat practice until perfect (>=99.9% == all correct for this block)
+  // Allow only one redo. If still not perfect after two rounds, stop practice.
   const practiceLoop = {
     timeline: [practiceProcedure, practiceGateScreen],
     loop_function: function () {
       const acc = lastPracticeAccuracy();
-      return acc < 0.999; // true => repeat practice
+      if (acc >= 0.999) {
+        passedPractice = true;
+        return false; // stop looping: passed
+      }
+      // Not perfect — count this completed round as a failed attempt
+      practiceAttempts += 1;
+      // Allow exactly one redo (run again only if this was the first failure)
+      return practiceAttempts < 2;
+    }
+  };
+
+  // Fail-out screen if practice not passed after two attempts
+  const practiceFailScreen = {
+    type: jsPsychHtmlKeyboardResponse,
+    choices: "NO_KEYS",
+    stimulus: `
+      <div class="exp-wrap">
+        <div class="stimulus-centered">
+          Unfortunately, you did not pass the practice phase after two attempts.
+          <br/><br/>
+          As a result, you won’t be able to continue with the rest of the study.
+        </div>
+      </div>
+    `,
+    trial_duration: 5000,  // or use choices: "ALL_KEYS" to require a keypress
+    data: { trial_id: 'practice_fail' },
+    on_start: function () { document.body.classList.add('hide-prompt'); },
+    on_finish: function () { document.body.classList.remove('hide-prompt'); }
+  };
+
+  // Only show the fail screen if practice was NOT passed.
+  const maybeFailOut = {
+    timeline: [practiceFailScreen],
+    conditional_function: function () {
+      return !passedPractice;
     }
   };
 
   // ---------------------------
   // Main task (political items)
-// ---------------------------
+  // ---------------------------
   const politicalCharacterizationProcedure = {
     timeline: [
       itiTrial,
@@ -422,14 +460,23 @@ if (startupIssues.length > 0) {
     randomize_order: true
   };
 
+  // Only run the main task if practice was passed
+  const maybeMain = {
+    timeline: [politicalCharacterizationProcedure],
+    conditional_function: function () {
+      return passedPractice;
+    }
+  };
+
   // ---------------------------
   // Build & run
   // ---------------------------
   const experiment = [];
   experiment.push(
     coolInstructions,
-    practiceLoop,                  // repeats until 100% in practice
-    politicalCharacterizationProcedure
+    practiceLoop,  // runs once; may repeat once if first attempt failed
+    maybeFailOut,  // shown only if practice not passed after up to 2 tries
+    maybeMain      // runs only if practice passed
   );
   jsPsych.run(experiment);
 }
