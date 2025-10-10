@@ -105,6 +105,10 @@
   white-space: nowrap; /* avoid wrap on long first word */
 }
 
+.stimulus-centered:not(.practice-shift) .sentence-fixed {
+  margin-left: 40px;
+}
+
 .connector {
   text-align: center;  /* visually centered between the two parts */
   white-space: nowrap;
