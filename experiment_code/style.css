@@ -106,8 +106,9 @@
 }
 
 .stimulus-centered:not(.practice-shift) .sentence-fixed {
-  margin-left: 40px;
+  transform: translateX(40px);  /* move main-task sentences 40px right */
 }
+
 
 .connector {
   text-align: center;  /* visually centered between the two parts */
