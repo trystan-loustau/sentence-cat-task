@@ -1,3 +1,23 @@
+// add this near the top of experiment.js
+const DISPLAY_EL = document.getElementById('jspsych-target') || undefined;
+
+const jsPsych = initJsPsych({
+  display_element: DISPLAY_EL,          // 👈 mount into Qualtrics question
+  on_finish: function () {
+    // (Optional) jsPsych built-in table:
+    // jsPsych.data.displayData();
+
+    // If you want to save everything locally for testing:
+    // jsPsych.data.get().localSave('csv', 'data.csv');
+
+    // When ready in Qualtrics, advance the survey:
+    if (window.Qualtrics?.SurveyEngine?.clickNextButton) {
+      Qualtrics.SurveyEngine.clickNextButton();   // 👈 advance Qualtrics
+    }
+  }
+});
+
+
 // --- experiment.js --- //
 
 // QUICK RUNTIME GUARDS (so we don't fail silently)
@@ -22,13 +42,6 @@ assert(typeof initJsPsych === 'function', 'initJsPsych not found. Is jspsych.js 
 // Verify plugins (UMD globals)
 assert(typeof window.jsPsychInstructions !== 'undefined', 'jsPsychInstructions not found. Did you include @jspsych/plugin-instructions?');
 assert(typeof window.jsPsychHtmlKeyboardResponse !== 'undefined', 'jsPsychHtmlKeyboardResponse not found. Did you include @jspsych/plugin-html-keyboard-response?');
-
-// initialize jsPsych
-const jsPsych = initJsPsych({
-  on_finish: function () {
-    jsPsych.data.displayData();
-  }
-});
 
 // Gather any startup issues about your external stimuli
 const startupIssues = [];
