@@ -419,7 +419,7 @@ if (startupIssues.length > 0) {
       }
     ],
     timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
-    randomize_order: false
+    randomize_order: true
   };
 
   // ---------------------------
