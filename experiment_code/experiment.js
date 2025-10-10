@@ -13,7 +13,8 @@ function assert(condition, message) {
     el.style.border = '1px solid #ccc';
     el.style.maxWidth = '900px';
     el.style.margin = '24px auto';
-    el.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+    el.style.fontFamily =
+      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
     el.textContent = `jsPsych startup error:\n${message}`;
     document.body.appendChild(el);
     throw new Error(message);
@@ -29,9 +30,9 @@ assert(typeof window.jsPsychHtmlKeyboardResponse !== 'undefined', 'jsPsychHtmlKe
 // Qualtrics redirect plumbing
 // -------------------------------
 const qp = new URLSearchParams(location.search);
-const sid = qp.get("sid") || "localtest-" + Math.random().toString(36).slice(2);
-const returnURL = qp.get("returnURL"); // Survey B URL (if launched from Survey A)
-console.log("[task] sid =", sid, "returnURL =", returnURL);
+const sid = qp.get('sid') || 'localtest-' + Math.random().toString(36).slice(2);
+const returnURL = qp.get('returnURL'); // Survey B URL (if launched from Survey A)
+console.log('[task] sid =', sid, 'returnURL =', returnURL);
 
 // If you mount into a specific div, use it; otherwise body is fine
 const DISPLAY_EL = document.getElementById('jspsych-target') || document.body;
@@ -47,7 +48,7 @@ const jsPsych = initJsPsych({
     const main = jsPsych.data.get().filter({ trial_id: 'political_characterization' });
 
     const acc_practice = prac.count() ? prac.select('correct').mean() : 0;
-    const n_main       = main.count();
+    const n_main = main.count();
     const rt_mean_main = n_main ? main.select('rt').mean() : null;
 
     if (returnURL) {
@@ -55,9 +56,9 @@ const jsPsych = initJsPsych({
         sid: sid,
         acc_practice: acc_practice.toFixed(3),
         n_main_trials: String(n_main),
-        rt_mean_main: rt_mean_main != null ? String(Math.round(rt_mean_main)) : ""
+        rt_mean_main: rt_mean_main != null ? String(Math.round(rt_mean_main)) : ''
       });
-      window.location.href = decodeURIComponent(returnURL) + "?" + qs.toString();
+      window.location.href = decodeURIComponent(returnURL) + '?' + qs.toString();
     } else {
       // Local testing fallback
       jsPsych.data.displayData();
@@ -90,18 +91,16 @@ if (typeof window.politicalCharacterizations === 'undefined') {
 if (startupIssues.length > 0) {
   const diag = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus:
-      `<div class="exp-wrap">
-         <h2>Experiment configuration problem</h2>
-         <p>The following issue(s) were detected. Fix them in <code>stimuli.js</code> (or your script order) and reload.</p>
-         <ul>${startupIssues.map(s => `<li>${s}</li>`).join('')}</ul>
-         <p><b>Tip:</b> Open the browser console for the exact error and stack trace.</p>
-         <p>Press any key to view collected (empty) data and confirm jsPsych is working.</p>
-       </div>`
+    stimulus: `<div class="exp-wrap">
+      <h2>Experiment configuration problem</h2>
+      <p>The following issue(s) were detected. Fix them in <code>stimuli.js</code> (or your script order) and reload.</p>
+      <ul>${startupIssues.map((s) => `<li>${s}</li>`).join('')}</ul>
+      <p><b>Tip:</b> Open the browser console for the exact error and stack trace.</p>
+      <p>Press any key to view collected (empty) data and confirm jsPsych is working.</p>
+    </div>`
   };
   jsPsych.run([diag]);
 } else {
-
   // ---------------------------
   // Utilities
   // ---------------------------
@@ -109,7 +108,7 @@ if (startupIssues.length > 0) {
     if (e.key === 'Enter') jsPsych.finishTrial();
   }
 
-  // Split sentence around "are"/"have" and bold the parts
+  // Split sentence around "are"/"have" and bold the parts (spacing handled by CSS grid)
   function formatSentence(sentence) {
     const match = sentence.match(/\s+(are|have)\s+/i);
     if (match) {
@@ -129,6 +128,20 @@ if (startupIssues.length > 0) {
     return `<div class="sentence-fixed"><b>${sentence}</b></div>`;
   }
 
+  // ---------------------------
+  // Practice items (8th-grade easy)
+  // ---------------------------
+  const practiceStimuli = [
+    { sentence: 'Birds are animals', truth: true },
+    { sentence: 'Bananas are blue', truth: false },
+    { sentence: 'Cats are reptiles', truth: false },
+    { sentence: 'Triangles have three sides', truth: true },
+    { sentence: 'Cars have wings', truth: false },
+    { sentence: 'Books have pages', truth: true },
+    { sentence: 'Apples are vegetables', truth: false },
+    { sentence: 'Trees have leaves', truth: true }
+  ];
+
   // Compute accuracy for the last full practice pass
   function lastPracticeAccuracy() {
     const n = practiceStimuli.length;
@@ -146,7 +159,7 @@ if (startupIssues.length > 0) {
     pages: () => [introduction_page],
     show_clickable_nav: false,
     allow_backward: false,
-    data: { trial_id: "cool_instructions" },
+    data: { trial_id: 'cool_instructions' },
     on_load: function () {
       const target =
         document.querySelector('#jspsych-content .exp-wrap') ||
@@ -194,25 +207,14 @@ if (startupIssues.length > 0) {
         </div>
       </div>
     `,
-    choices: "NO_KEYS",
+    choices: 'NO_KEYS',
     trial_duration: 800,
-    data: { trial_id: "iti" }
+    data: { trial_id: 'iti' }
   };
 
   // ---------------------------
-  // Practice items (8th-grade easy)
+  // Practice block (randomized)
   // ---------------------------
-  const practiceStimuli = [
-    { sentence: "Birds are animals", truth: true },
-    { sentence: "Bananas are blue", truth: false },
-    { sentence: "Cats are reptiles", truth: false },
-    { sentence: "Triangles have three sides", truth: true },
-    { sentence: "Cars have wings", truth: false },
-    { sentence: "Books have pages", truth: true },
-    { sentence: "Apples are vegetables", truth: false },
-    { sentence: "Trees have leaves", truth: true }
-  ];
-
   const practiceProcedure = {
     timeline: [
       itiTrial,
@@ -235,7 +237,7 @@ if (startupIssues.length > 0) {
               </div>
             </div>`;
         },
-        choices: ['f','j'],
+        choices: ['f', 'j'],
         response_ends_trial: true,
         data: {
           trial_id: 'practice',
@@ -245,7 +247,7 @@ if (startupIssues.length > 0) {
         on_finish: function (d) {
           const r = (d.response ?? '').toString().toLowerCase();
           const correctKey = d.truth ? 'j' : 'f';
-          d.correct = (r === correctKey) ? 1 : 0;
+          d.correct = r === correctKey ? 1 : 0;
         }
       },
       {
@@ -258,7 +260,7 @@ if (startupIssues.length > 0) {
               <div class="stimulus-centered" style="font-weight:700;">${msg}</div>
             </div>`;
         },
-        choices: "NO_KEYS",
+        choices: 'NO_KEYS',
         trial_duration: 700,
         data: { trial_id: 'practice_feedback' }
       }
@@ -270,14 +272,14 @@ if (startupIssues.length > 0) {
   // One adaptive gate screen (Enter-only). Hides the prompt.
   const practiceGateScreen = {
     type: jsPsychHtmlKeyboardResponse,
-    choices: "NO_KEYS",
+    choices: 'NO_KEYS', // disable plugin key handling; we add our own
     stimulus: function () {
       const acc = lastPracticeAccuracy();
-      const perfect = acc >= 0.999;
+      const perfect = acc >= 0.999; // float-safe "all correct"
       const msg = perfect
         ? `Great job — you answered all practice items correctly.<br/><br/>
            <b>Press Enter to begin the main task.</b>`
-        : `You got ${(acc*100).toFixed(0)}% correct.<br/>
+        : `You got ${(acc * 100).toFixed(0)}% correct.<br/>
            Please reach <b>100%</b> to continue.<br/><br/>
            <b>Press Enter to practice again.</b>`;
       return `
@@ -305,7 +307,7 @@ if (startupIssues.length > 0) {
     data: { trial_id: 'practice_gate' }
   };
 
-  // Repeat practice until perfect (>=99.9% == all correct here)
+  // Repeat practice until perfect
   const practiceLoop = {
     timeline: [practiceProcedure, practiceGateScreen],
     loop_function: function () {
@@ -316,7 +318,7 @@ if (startupIssues.length > 0) {
 
   // ---------------------------
   // Main task (political items)
-  // ---------------------------
+// ---------------------------
   const politicalCharacterizationProcedure = {
     timeline: [
       itiTrial,
@@ -339,19 +341,18 @@ if (startupIssues.length > 0) {
               </div>
             </div>`;
         },
-        choices: ['f','j'],
+        choices: ['f', 'j'],
         response_ends_trial: true,
         data: {
           trial_id: 'political_characterization',
           stimulus: jsPsych.timelineVariable('sentence')
         },
         on_finish: function (d) {
-          // Keep a readable meaning, too
-          d.response_meaning = d.response === 'j' ? 'True' : (d.response === 'f' ? 'False' : null);
+          d.response_meaning = d.response === 'j' ? 'True' : d.response === 'f' ? 'False' : null;
         }
       }
     ],
-    timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
+    timeline_variables: politicalCharacterizations.map((sentence) => ({ sentence })),
     randomize_order: false
   };
 
@@ -359,11 +360,7 @@ if (startupIssues.length > 0) {
   // Build & run
   // ---------------------------
   const experiment = [];
-  experiment.push(
-    coolInstructions,
-    practiceLoop,                  // repeats until 100% in practice
-    politicalCharacterizationProcedure
-  );
+  experiment.push(coolInstructions, practiceLoop, politicalCharacterizationProcedure);
   jsPsych.run(experiment);
 }
 // ================================
