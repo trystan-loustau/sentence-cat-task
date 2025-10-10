@@ -100,15 +100,16 @@
   text-align: left;
 }
 
+.stimulus-centered:not(.practice-shift) .sentence-fixed {
+  position: relative !important;
+  left: 40px !important;
+}
+
+
 .fixed-first {
   text-align: right;   /* snug against the connector */
   white-space: nowrap; /* avoid wrap on long first word */
 }
-
-.stimulus-centered:not(.practice-shift) .sentence-fixed {
-  transform: translateX(40px);  /* move main-task sentences 40px right */
-}
-
 
 .connector {
   text-align: center;  /* visually centered between the two parts */
