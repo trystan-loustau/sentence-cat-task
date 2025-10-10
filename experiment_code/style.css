@@ -38,6 +38,7 @@
   pointer-events: none;
   display: flex;
   justify-content: center;
+  font-family: Arial, sans-serif;
 }
 
 #fixed-ui .prompt-top {
@@ -50,6 +51,7 @@
   border-radius: 8px;
   border: none;
   box-shadow: none;
+  font-family: Arial, sans-serif;
 }
 
 /* ---------- Main sentence container ---------- */
