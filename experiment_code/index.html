@@ -1,22 +1,37 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Survey</title>
-        <script src="jspsych/dist/jspsych.js"></script>
-        <link href="jspsych/dist/jspsych.css" rel="stylesheet" type="text/css" />
-        <script src="jspsych/dist/plugin-html-button-response.js"></script>
-        <script src="jspsych/dist/plugin-html-keyboard-response.js"></script>
-        <script src="jspsych/dist/plugin-instructions.js"></script>
-        <script src="jspsych/dist/plugin-survey-likert.js"></script>
-        <script src="jspsych/dist/plugin-survey-html-form.js"></script>
-        <script src="jspsych/dist/plugin-survey-multi-choice.js"></script>
-        <script src="jspsych/dist/plugin-survey-text.js"></script>
-        <script src="jspsych/dist/plugin-call-function.js"></script>
-        <!-- <script src="https://unpkg.com/@jspsych-contrib/plugin-pipe"></script> -->
-        <script src="stimuli.js"></script>
-        <script src="experiment.js"></script>
-        <link href="style.css" rel="stylesheet"/>
-    </head>
-    <body>
-    </body>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Sentence Classification Task</title>
+
+    <!-- jsPsych core CSS -->
+    <link href="jspsych/dist/jspsych.css?v=2" rel="stylesheet" />
+
+    <!-- Your custom styles (put after jsPsych so you can override it) -->
+    <link href="style.css?v=2" rel="stylesheet" />
+
+    <!-- jsPsych core + plugins (defer = run after HTML is parsed, in order) -->
+    <script defer src="jspsych/dist/jspsych.js?v=2"></script>
+    <script defer src="jspsych/dist/plugin-html-keyboard-response.js?v=2"></script>
+    <script defer src="jspsych/dist/plugin-instructions.js?v=2"></script>
+
+    <!-- Your stimuli and experiment code (after libraries) -->
+    <script defer src="stimuli.js?v=2"></script>
+    <script defer src="experiment.js?v=2"></script>
+  </head>
+  <body>
+    <!-- Where jsPsych renders -->
+    <div id="jspsych-target"></div>
+
+    <noscript>
+      <p style="padding:16px;max-width:900px;margin:24px auto;border:1px solid #ccc">
+        This task requires JavaScript to run.
+      </p>
+    </noscript>
+  </body>
 </html>
+
