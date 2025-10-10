@@ -1,9 +1,37 @@
 // ================================
-// experiment.js (refined)
+// experiment.js (refined, full)
 // ================================
 
+// --------- small helpers (TSV + POST back to Qualtrics) ---------
+function toTSV(rows) {
+  // Tab-Separated; remove tabs/newlines inside cells.
+  return rows.map(r =>
+    r.map(v => (v ?? '').toString().replace(/\t/g, ' ').replace(/\r?\n/g, ' '))
+     .join('\t')
+  ).join('\n');
+}
+function chunkString(str, size) {
+  const out = [];
+  for (let i = 0; i < str.length; i += size) out.push(str.slice(i, i + size));
+  return out;
+}
+function postToQualtrics(url, fields) {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = url;
+  for (const [k, v] of Object.entries(fields)) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = k;
+    input.value = v == null ? '' : String(v);
+    form.appendChild(input);
+  }
+  document.body.appendChild(form);
+  form.submit();
+}
+
 // -------------------------------
-// Sanity checks (before init)
+// Basic sanity checks
 // -------------------------------
 function assert(condition, message) {
   if (!condition) {
@@ -13,15 +41,12 @@ function assert(condition, message) {
     el.style.border = '1px solid #ccc';
     el.style.maxWidth = '900px';
     el.style.margin = '24px auto';
-    el.style.fontFamily =
-      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+    el.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
     el.textContent = `jsPsych startup error:\n${message}`;
     document.body.appendChild(el);
     throw new Error(message);
   }
 }
-
-// Verify jsPsych core + key plugins are loaded
 assert(typeof initJsPsych === 'function', 'initJsPsych not found. Is jspsych.js loaded before experiment.js?');
 assert(typeof window.jsPsychInstructions !== 'undefined', 'jsPsychInstructions not found. Include @jspsych/plugin-instructions.js.');
 assert(typeof window.jsPsychHtmlKeyboardResponse !== 'undefined', 'jsPsychHtmlKeyboardResponse not found. Include @jspsych/plugin-html-keyboard-response.js.');
@@ -30,11 +55,10 @@ assert(typeof window.jsPsychHtmlKeyboardResponse !== 'undefined', 'jsPsychHtmlKe
 // Qualtrics redirect plumbing
 // -------------------------------
 const qp = new URLSearchParams(location.search);
-const sid = qp.get('sid') || 'localtest-' + Math.random().toString(36).slice(2);
-const returnURL = qp.get('returnURL'); // Survey B URL (if launched from Survey A)
-console.log('[task] sid =', sid, 'returnURL =', returnURL);
+const sid = qp.get("sid") || ("localtest-" + Math.random().toString(36).slice(2));
+const returnURL = qp.get("returnURL"); // optional if launched directly
 
-// If you mount into a specific div, use it; otherwise body is fine
+// Mount into #jspsych-target if present (Qualtrics or your page), else <body>
 const DISPLAY_EL = document.getElementById('jspsych-target') || document.body;
 
 // -------------------------------
@@ -43,25 +67,69 @@ const DISPLAY_EL = document.getElementById('jspsych-target') || document.body;
 const jsPsych = initJsPsych({
   display_element: DISPLAY_EL,
   on_finish: function () {
-    // Summaries to pass back to Qualtrics (Survey B)
-    const prac = jsPsych.data.get().filter({ trial_id: 'practice' });
-    const main = jsPsych.data.get().filter({ trial_id: 'political_characterization' });
+    // ---- build per-trial table (practice + main) ----
+    const header = ['sid','block','idx','sentence','resp','meaning','rt','correct'];
+    const rows = [header];
 
-    const acc_practice = prac.count() ? prac.select('correct').mean() : 0;
-    const n_main = main.count();
-    const rt_mean_main = n_main ? main.select('rt').mean() : null;
+    // practice rows
+    const pracVals = jsPsych.data.get().filter({ trial_id: 'practice' }).values();
+    pracVals.forEach((t, i) => {
+      rows.push([
+        sid,
+        'practice',
+        i + 1,
+        t.sentence ?? '',
+        (t.response ?? '').toString(),
+        t.response === 'j' ? 'True' : (t.response === 'f' ? 'False' : ''),
+        t.rt ?? '',
+        Number(t.correct) === 1 ? 1 : 0
+      ]);
+    });
+
+    // main rows
+    const mainVals = jsPsych.data.get().filter({ trial_id: 'political_characterization' }).values();
+    mainVals.forEach((t, i) => {
+      rows.push([
+        sid,
+        'main',
+        i + 1,
+        t.sentence ?? '',
+        (t.response ?? '').toString(),
+        t.response === 'j' ? 'True' : (t.response === 'f' ? 'False' : ''),
+        t.rt ?? '',
+        '' // no correctness in main
+      ]);
+    });
+
+    const tsv = toTSV(rows);
+
+    // ---- summaries (optional) ----
+    const acc_practice = pracVals.length
+      ? pracVals.reduce((s, t) => s + (Number(t.correct) === 1 ? 1 : 0), 0) / pracVals.length
+      : 0;
+    const n_main = mainVals.length;
+    const rt_mean_main = n_main
+      ? Math.round(mainVals.reduce((s, t) => s + (t.rt ?? 0), 0) / n_main)
+      : '';
 
     if (returnURL) {
-      const qs = new URLSearchParams({
-        sid: sid,
+      // Chunk TSV into Embedded Data fields
+      const chunks = chunkString(tsv, 1800); // conservative size
+      const payload = {
+        sid,
         acc_practice: acc_practice.toFixed(3),
         n_main_trials: String(n_main),
-        rt_mean_main: rt_mean_main != null ? String(Math.round(rt_mean_main)) : ''
-      });
-      window.location.href = decodeURIComponent(returnURL) + '?' + qs.toString();
+        rt_mean_main: String(rt_mean_main),
+        tformat: 'tsv-v1',
+        tchunks: String(chunks.length)
+      };
+      chunks.forEach((c, i) => { payload['tchunk' + (i + 1)] = c; });
+
+      postToQualtrics(decodeURIComponent(returnURL), payload);
     } else {
-      // Local testing fallback
+      // Direct-link fallback (show table for debugging)
       jsPsych.data.displayData();
+      console.log('[tsv]', tsv);
     }
   }
 });
@@ -87,20 +155,21 @@ if (typeof window.politicalCharacterizations === 'undefined') {
   startupIssues.push('politicalCharacterizations is an empty array.');
 }
 
-// If misconfigured, show diagnostic timeline and stop
+// If misconfigured, show diagnostic and stop
 if (startupIssues.length > 0) {
   const diag = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: `<div class="exp-wrap">
-      <h2>Experiment configuration problem</h2>
-      <p>The following issue(s) were detected. Fix them in <code>stimuli.js</code> (or your script order) and reload.</p>
-      <ul>${startupIssues.map((s) => `<li>${s}</li>`).join('')}</ul>
-      <p><b>Tip:</b> Open the browser console for the exact error and stack trace.</p>
-      <p>Press any key to view collected (empty) data and confirm jsPsych is working.</p>
-    </div>`
+    stimulus:
+      `<div class="exp-wrap">
+         <h2>Experiment configuration problem</h2>
+         <p>Fix these in <code>stimuli.js</code> (or script order) and reload.</p>
+         <ul>${startupIssues.map(s => `<li>${s}</li>`).join('')}</ul>
+         <p>Press any key to view the (empty) data table.</p>
+       </div>`
   };
   jsPsych.run([diag]);
 } else {
+
   // ---------------------------
   // Utilities
   // ---------------------------
@@ -108,7 +177,7 @@ if (startupIssues.length > 0) {
     if (e.key === 'Enter') jsPsych.finishTrial();
   }
 
-  // Split sentence around "are"/"have" and bold the parts (spacing handled by CSS grid)
+  // Split sentence around "are"/"have" and bold the parts
   function formatSentence(sentence) {
     const match = sentence.match(/\s+(are|have)\s+/i);
     if (match) {
@@ -129,29 +198,6 @@ if (startupIssues.length > 0) {
   }
 
   // ---------------------------
-  // Practice items (8th-grade easy)
-  // ---------------------------
-  const practiceStimuli = [
-    { sentence: 'Birds are animals', truth: true },
-    { sentence: 'Bananas are blue', truth: false },
-    { sentence: 'Cats are reptiles', truth: false },
-    { sentence: 'Triangles have three sides', truth: true },
-    { sentence: 'Cars have wings', truth: false },
-    { sentence: 'Books have pages', truth: true },
-    { sentence: 'Apples are vegetables', truth: false },
-    { sentence: 'Trees have leaves', truth: true }
-  ];
-
-  // Compute accuracy for the last full practice pass
-  function lastPracticeAccuracy() {
-    const n = practiceStimuli.length;
-    const trials = jsPsych.data.get().filter({ trial_id: 'practice' }).last(n).values();
-    if (!trials.length) return 0;
-    const sum = trials.reduce((s, t) => s + (Number(t.correct) === 1 ? 1 : 0), 0);
-    return sum / trials.length;
-  }
-
-  // ---------------------------
   // Instructions (Enter-only)
   // ---------------------------
   const coolInstructions = {
@@ -159,7 +205,7 @@ if (startupIssues.length > 0) {
     pages: () => [introduction_page],
     show_clickable_nav: false,
     allow_backward: false,
-    data: { trial_id: 'cool_instructions' },
+    data: { trial_id: "cool_instructions" },
     on_load: function () {
       const target =
         document.querySelector('#jspsych-content .exp-wrap') ||
@@ -175,7 +221,7 @@ if (startupIssues.length > 0) {
     },
     on_finish: function () {
       document.removeEventListener('keydown', advanceOnEnter);
-      // Inject a persistent prompt (no keys here; trial HTML shows keys)
+      // Inject persistent prompt (no keys here; trials show the keys)
       if (!document.getElementById('fixed-ui')) {
         const ui = document.createElement('div');
         ui.id = 'fixed-ui';
@@ -207,14 +253,25 @@ if (startupIssues.length > 0) {
         </div>
       </div>
     `,
-    choices: 'NO_KEYS',
+    choices: "NO_KEYS",
     trial_duration: 800,
-    data: { trial_id: 'iti' }
+    data: { trial_id: "iti" }
   };
 
   // ---------------------------
-  // Practice block (randomized)
+  // Practice items (8th-grade easy)
   // ---------------------------
+  const practiceStimuli = [
+    { sentence: "Birds are animals", truth: true },
+    { sentence: "Bananas are blue", truth: false },
+    { sentence: "Cats are reptiles", truth: false },
+    { sentence: "Triangles have three sides", truth: true },
+    { sentence: "Cars have wings", truth: false },
+    { sentence: "Books have pages", truth: true },
+    { sentence: "Apples are vegetables", truth: false },
+    { sentence: "Trees have leaves", truth: true }
+  ];
+
   const practiceProcedure = {
     timeline: [
       itiTrial,
@@ -237,7 +294,7 @@ if (startupIssues.length > 0) {
               </div>
             </div>`;
         },
-        choices: ['f', 'j'],
+        choices: ['f','j'],
         response_ends_trial: true,
         data: {
           trial_id: 'practice',
@@ -247,7 +304,7 @@ if (startupIssues.length > 0) {
         on_finish: function (d) {
           const r = (d.response ?? '').toString().toLowerCase();
           const correctKey = d.truth ? 'j' : 'f';
-          d.correct = r === correctKey ? 1 : 0;
+          d.correct = (r === correctKey) ? 1 : 0;
         }
       },
       {
@@ -260,7 +317,7 @@ if (startupIssues.length > 0) {
               <div class="stimulus-centered" style="font-weight:700;">${msg}</div>
             </div>`;
         },
-        choices: 'NO_KEYS',
+        choices: "NO_KEYS",
         trial_duration: 700,
         data: { trial_id: 'practice_feedback' }
       }
@@ -269,17 +326,26 @@ if (startupIssues.length > 0) {
     randomize_order: true
   };
 
+  // Helper: last pass practice accuracy
+  function lastPracticeAccuracy() {
+    const n = practiceStimuli.length;
+    const trials = jsPsych.data.get().filter({ trial_id: 'practice' }).last(n).values();
+    if (!trials.length) return 0;
+    const sum = trials.reduce((s, t) => s + (Number(t.correct) === 1 ? 1 : 0), 0);
+    return sum / trials.length;
+  }
+
   // One adaptive gate screen (Enter-only). Hides the prompt.
   const practiceGateScreen = {
     type: jsPsychHtmlKeyboardResponse,
-    choices: 'NO_KEYS', // disable plugin key handling; we add our own
+    choices: "NO_KEYS",
     stimulus: function () {
       const acc = lastPracticeAccuracy();
-      const perfect = acc >= 0.999; // float-safe "all correct"
+      const perfect = acc >= 0.999;
       const msg = perfect
         ? `Great job — you answered all practice items correctly.<br/><br/>
            <b>Press Enter to begin the main task.</b>`
-        : `You got ${(acc * 100).toFixed(0)}% correct.<br/>
+        : `You got ${(acc*100).toFixed(0)}% correct.<br/>
            Please reach <b>100%</b> to continue.<br/><br/>
            <b>Press Enter to practice again.</b>`;
       return `
@@ -289,7 +355,7 @@ if (startupIssues.length > 0) {
       `;
     },
     on_start: function () {
-      document.body.classList.add('hide-prompt'); // CSS should hide #fixed-ui
+      document.body.classList.add('hide-prompt'); // CSS hides #fixed-ui
     },
     on_load: function () {
       window.__gateEnterHandler = function (e) {
@@ -307,12 +373,12 @@ if (startupIssues.length > 0) {
     data: { trial_id: 'practice_gate' }
   };
 
-  // Repeat practice until perfect
+  // Repeat practice until perfect (>=99.9% == all correct for this block)
   const practiceLoop = {
     timeline: [practiceProcedure, practiceGateScreen],
     loop_function: function () {
       const acc = lastPracticeAccuracy();
-      return acc < 0.999; // true => repeat
+      return acc < 0.999; // true => repeat practice
     }
   };
 
@@ -341,18 +407,18 @@ if (startupIssues.length > 0) {
               </div>
             </div>`;
         },
-        choices: ['f', 'j'],
+        choices: ['f','j'],
         response_ends_trial: true,
         data: {
           trial_id: 'political_characterization',
-          stimulus: jsPsych.timelineVariable('sentence')
+          sentence: jsPsych.timelineVariable('sentence')
         },
         on_finish: function (d) {
-          d.response_meaning = d.response === 'j' ? 'True' : d.response === 'f' ? 'False' : null;
+          d.response_meaning = d.response === 'j' ? 'True' : (d.response === 'f' ? 'False' : null);
         }
       }
     ],
-    timeline_variables: politicalCharacterizations.map((sentence) => ({ sentence })),
+    timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
     randomize_order: false
   };
 
@@ -360,7 +426,11 @@ if (startupIssues.length > 0) {
   // Build & run
   // ---------------------------
   const experiment = [];
-  experiment.push(coolInstructions, practiceLoop, politicalCharacterizationProcedure);
+  experiment.push(
+    coolInstructions,
+    practiceLoop,                  // repeats until 100% in practice
+    politicalCharacterizationProcedure
+  );
   jsPsych.run(experiment);
 }
 // ================================
