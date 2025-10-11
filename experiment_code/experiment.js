@@ -340,42 +340,53 @@ if (startupIssues.length > 0) {
   }
 
   // One adaptive gate screen (Enter-only). Hides the prompt.
-  const practiceGateScreen = {
-    type: jsPsychHtmlKeyboardResponse,
-    choices: "NO_KEYS",
-    stimulus: function () {
-      const acc = lastPracticeAccuracy();
-      const perfect = acc >= 0.999;
-      const msg = perfect
-        ? `Great job — you answered all practice items correctly.<br/><br/>
-           <b>Press Enter to begin the main task.</b>`
-        : `You got ${(acc*100).toFixed(0)}% correct.<br/>
-           Please reach <b>100%</b> to continue.<br/><br/>
-           <b>Press Enter to practice again.</b>`;
-      return `
-        <div class="exp-wrap">
-          <div class="stimulus-centered">${msg}</div>
-        </div>
-      `;
-    },
-    on_start: function () {
-      document.body.classList.add('hide-prompt'); // CSS hides #fixed-ui
-    },
-    on_load: function () {
-      window.__gateEnterHandler = function (e) {
-        if (e.key === 'Enter') {
-          jsPsych.finishTrial();
-        }
-      };
-      document.addEventListener('keydown', window.__gateEnterHandler);
-    },
-    on_finish: function () {
-      document.body.classList.remove('hide-prompt');
-      document.removeEventListener('keydown', window.__gateEnterHandler);
-      delete window.__gateEnterHandler;
-    },
-    data: { trial_id: 'practice_gate' }
-  };
+ // One adaptive gate screen (Enter-only). Hides the prompt.
+const practiceGateScreen = {
+  type: jsPsychHtmlKeyboardResponse,
+  choices: "NO_KEYS",
+  stimulus: function () {
+    const acc = lastPracticeAccuracy();
+    const perfect = acc >= 0.999;
+
+    // Show this warning only after the first failure (before the final attempt)
+    const warning = (!perfect && practiceAttempts === 0)
+      ? `<div class="practice-warning" style="margin-top:12px;">
+           <b>You will have ONE MORE chance to complete the practice phase. If you do not successfully complete the practice phase, you will not be allowed to continue with the study.</b>
+         </div>`
+      : '';
+
+    const msg = perfect
+      ? `Great job — you answered all practice items correctly.<br/><br/>
+         <b>Press Enter to begin the main task.</b>`
+      : `You got ${(acc*100).toFixed(0)}% correct.<br/>
+         Please reach <b>100%</b> to continue.<br/><br/>
+         <b>Press Enter to practice again.</b>${warning}`;
+
+    return `
+      <div class="exp-wrap">
+        <div class="stimulus-centered">${msg}</div>
+      </div>
+    `;
+  },
+  on_start: function () {
+    document.body.classList.add('hide-prompt'); // CSS hides #fixed-ui
+  },
+  on_load: function () {
+    window.__gateEnterHandler = function (e) {
+      if (e.key === 'Enter') {
+        jsPsych.finishTrial();
+      }
+    };
+    document.addEventListener('keydown', window.__gateEnterHandler);
+  },
+  on_finish: function () {
+    document.body.classList.remove('hide-prompt');
+    document.removeEventListener('keydown', window.__gateEnterHandler);
+    delete window.__gateEnterHandler;
+  },
+  data: { trial_id: 'practice_gate' }
+};
+
 
   // Allow only one redo. If still not perfect after two rounds, stop practice.
   const practiceLoop = {
