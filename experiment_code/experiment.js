@@ -341,6 +341,7 @@ if (startupIssues.length > 0) {
 
   // One adaptive gate screen (Enter-only). Hides the prompt.
  // One adaptive gate screen (Enter-only). Hides the prompt.
+// One adaptive gate screen (Enter-only). Hides the prompt.
 const practiceGateScreen = {
   type: jsPsychHtmlKeyboardResponse,
   choices: "NO_KEYS",
@@ -355,9 +356,16 @@ const practiceGateScreen = {
          </div>`
       : '';
 
+    const successReminder = perfect
+      ? `<div class="practice-reminder" style="margin-top:12px;">
+           Remember, for the next set of statements, there are no "correct" or "incorrect" answers.
+           We are interested in how <b>YOU</b> would personally classify these statements as <b>True</b> or <b>False</b>.
+         </div>`
+      : '';
+
     const msg = perfect
       ? `Great job — you answered all practice items correctly.<br/><br/>
-         <b>Press Enter to begin the main task.</b>`
+         <b>Press Enter to begin the main task.</b>${successReminder}`
       : `You got ${(acc*100).toFixed(0)}% correct.<br/>
          Please reach <b>100%</b> to continue.<br/><br/>
          <b>Press Enter to practice again.</b>${warning}`;
@@ -386,6 +394,7 @@ const practiceGateScreen = {
   },
   data: { trial_id: 'practice_gate' }
 };
+
 
 
   // Allow only one redo. If still not perfect after two rounds, stop practice.
