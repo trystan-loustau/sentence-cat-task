@@ -86,14 +86,14 @@ const jsPsych = initJsPsych({
       ]);
     });
 
-    // main rows
+    // main rows (NB: we still export only the legacy columns for Qualtrics)
     const mainVals = jsPsych.data.get().filter({ trial_id: 'political_characterization' }).values();
     mainVals.forEach((t, i) => {
       rows.push([
         sid,
         'main',
         i + 1,
-        t.sentence ?? '',
+        t.sentence ?? '',                               // stored below as the displayed text
         (t.response ?? '').toString(),
         t.response === 'j' ? 'True' : (t.response === 'f' ? 'False' : ''),
         t.rt ?? '',
@@ -151,12 +151,12 @@ const startupIssues = [];
 if (typeof window.introduction_page === 'undefined') {
   startupIssues.push('introduction_page is undefined (expected from stimuli.js).');
 }
-if (typeof window.politicalCharacterizations === 'undefined') {
-  startupIssues.push('politicalCharacterizations is undefined (expected from stimuli.js).');
-} else if (!Array.isArray(window.politicalCharacterizations)) {
-  startupIssues.push('politicalCharacterizations is not an array.');
-} else if (window.politicalCharacterizations.length === 0) {
-  startupIssues.push('politicalCharacterizations is an empty array.');
+if (typeof window.mainTaskTrials === 'undefined') {
+  startupIssues.push('mainTaskTrials is undefined (expected from stimuli.js).');
+} else if (!Array.isArray(window.mainTaskTrials)) {
+  startupIssues.push('mainTaskTrials is not an array.');
+} else if (window.mainTaskTrials.length === 0) {
+  startupIssues.push('mainTaskTrials is an empty array.');
 }
 
 // If misconfigured, show diagnostic and stop
@@ -258,7 +258,7 @@ if (startupIssues.length > 0) {
       </div>
     `,
     choices: "NO_KEYS",
-    trial_duration: 800,
+    trial_duration: 800, // keep fixed or jitter in stimuli.js if you prefer
     data: { trial_id: "iti" }
   };
 
@@ -421,18 +421,27 @@ if (startupIssues.length > 0) {
   };
 
   // ---------------------------
-  // Main task (political items)
-  // ---------------------------
+  // Main task (uses window.mainTaskTrials)
+// ---------------------------
+  // Build timeline variables from prepared trial objects (no reshuffle here)
+  const mainTimelineVars = window.mainTaskTrials.map((t, i) => ({
+    index: i,
+    sentence: t.text,              // keep legacy field name for export/formatting
+    contentType: t.contentType,    // "coalitional" | "trait" | "issue"
+    party: t.party,                // "D" | "R"
+    exploratory: !!t.exploratory   // true | false
+  }));
+
   const politicalCharacterizationProcedure = {
     timeline: [
       itiTrial,
       {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: function () {
-          const sentence = jsPsych.timelineVariable('sentence');
+          const tv = jsPsych.timelineVariable('sentence');
           return `
             <div class="exp-wrap">
-              <div class="stimulus-centered">${formatSentence(sentence)}</div>
+              <div class="stimulus-centered">${formatSentence(tv)}</div>
               <div class="key-reminder">
                 <div class="key-col left">
                   <div class="key-label">False</div>
@@ -449,15 +458,21 @@ if (startupIssues.length > 0) {
         response_ends_trial: true,
         data: {
           trial_id: 'political_characterization',
-          sentence: jsPsych.timelineVariable('sentence')
+          sentence: jsPsych.timelineVariable('sentence'),
+          contentType: jsPsych.timelineVariable('contentType'),
+          party: jsPsych.timelineVariable('party'),
+          exploratory: jsPsych.timelineVariable('exploratory'),
+          index: jsPsych.timelineVariable('index')
         },
         on_finish: function (d) {
-          d.response_meaning = d.response === 'j' ? 'True' : (d.response === 'f' ? 'False' : null);
+          const r = (d.response ?? '').toString().toLowerCase();
+          d.response_meaning = (r === 'j') ? 'True' : (r === 'f') ? 'False' : null;
+          // RT is in d.rt (ms)
         }
       }
     ],
-    timeline_variables: politicalCharacterizations.map(sentence => ({ sentence })),
-    randomize_order: true
+    timeline_variables: mainTimelineVars,
+    randomize_order: false // order already mixed with constraints in stimuli.js
   };
 
   // Only run the main task if practice was passed
