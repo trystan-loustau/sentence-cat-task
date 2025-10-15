@@ -183,7 +183,7 @@ if (startupIssues.length > 0) {
 
   // Split sentence around "are"/"have" and bold the parts
   function formatSentence(sentence) {
-    const match = sentence.match(/\s+(are|have)\s+/i);
+  const match = sentence.match(/\s+(are|have|live in)\s+/i);
     if (match) {
       const connector = match[1];
       const parts = sentence.split(new RegExp(`\\s+${connector}\\s+`, 'i'));
