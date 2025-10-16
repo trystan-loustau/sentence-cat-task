@@ -94,7 +94,9 @@ window.politicalCharacterizations = [
   "Democrats are Veterans",
   "Republicans are Veterans",
   "Democrats are Business-Owners",
-  "Republicans are Business-Owners"
+  "Republicans are Business-Owners",
+  "To show you are paying attention, press F (False)",
+  "To show you are paying attention, press J (True)"
 ];
 
 // ---------------- Helpers ----------------
